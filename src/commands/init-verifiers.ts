@@ -54,7 +54,7 @@ Analyze the project to detect what's in different subdirectories. The project ma
    - Check MCP configuration (.mcp.json) for browser automation tools:
      - Playwright MCP server
      - Chrome DevTools MCP server
-     - Claude Chrome Extension MCP (browser-use via Claude's Chrome extension)
+     - Claude Chrome Extension MCP (browser-use via the assistant's Chrome extension)
    - For Python projects, check for playwright, pytest-playwright
 
 ## Phase 2: Verification Tool Setup
@@ -162,7 +162,7 @@ Based on the areas detected in Phase 1, you may need to create multiple verifier
 
 ## Phase 4: Generate Verifier Skill
 
-**All verifier skills are created in the project root's \`.claude/skills/\` directory.** This ensures they are automatically loaded when Claude runs in the project.
+**All verifier skills are created in the project root's \`.claude/skills/\` directory.** This ensures they are automatically loaded when the assistant runs in the project.
 
 Write the skill file to \`.claude/skills/<verifier-name>/SKILL.md\`.
 

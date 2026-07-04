@@ -1624,7 +1624,7 @@ export function isOverageProvisioningAllowed(): boolean {
   const accountInfo = getOauthAccountInfo()
   const billingType = accountInfo?.billingType
 
-  // Must be a Claude subscriber with a supported subscription type
+  // Must be the assistant subscriber with a supported subscription type
   if (!isClaudeAISubscriber() || !billingType) {
     return false
   }
@@ -1716,9 +1716,9 @@ export function getSubscriptionName(): string {
 
   switch (subscriptionType) {
     case 'enterprise':
-      return 'Claude Enterprise'
+      return 'The assistant Enterprise'
     case 'team':
-      return 'Claude Team'
+      return 'The assistant Team'
     case 'max':
       return 'Claude Max'
     case 'pro':

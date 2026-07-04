@@ -1,18 +1,6 @@
-# Claude Code — Leaked Source (2026-03-31)
+# AI CLI
 
-> **On March 31, 2026, the full source code of Anthropic's Claude Code CLI was leaked** via a `.map` file exposed in their npm registry.
-
----
-
-## How It Leaked
-
-[Chaofan Shou (@Fried_rice)](https://x.com/Fried_rice) discovered the leak and posted it publicly:
-
-> **"Claude code source code has been leaked via a map file in their npm registry!"**
->
-> — [@Fried_rice, March 31, 2026](https://x.com/Fried_rice/status/2038894956459290963)
-
-The source map file in the published npm package contained a reference to the full, unobfuscated TypeScript source, which was downloadable as a zip archive from Anthropic's R2 storage bucket.
+AI CLI is a command-line coding assistant that lets you interact with a large language model directly from the terminal to perform software engineering tasks — editing files, running commands, searching codebases, managing git workflows, and more.
 
 ---
 
@@ -22,7 +10,7 @@ The source map file in the published npm package contained a reference to the fu
 
 - **[Bun](https://bun.sh)** v1.3+ (the project's runtime)
 - **Node.js** v18+ (for npm package installation)
-- An **Anthropic API key** (set as `ANTHROPIC_API_KEY` environment variable)
+- An **API key** (set as the `ANTHROPIC_API_KEY` environment variable)
 
 ### Install & Run
 
@@ -34,20 +22,20 @@ source ~/.bash_profile  # or restart your terminal
 # 2. Install dependencies
 npm install --legacy-peer-deps
 
-# 3. Run Claude Code
+# 3. Run AI CLI
 bun run start
 
 # Or with arguments:
 bun run start -- --help
 bun run start -- --version
-bun run start -- -p "Hello Claude"
+bun run start -- -p "Hello"
 ```
 
 ### Available Scripts
 
 | Script | Description |
 |--------|-------------|
-| `bun run start` | Run Claude Code CLI |
+| `bun run start` | Run the AI CLI |
 | `bun run dev` | Run with hot-reloading (--watch) |
 | `bun run build` | Bundle for production |
 | `bun run typecheck` | Run TypeScript type checking |
@@ -56,12 +44,12 @@ bun run start -- -p "Hello Claude"
 
 | Variable | Description |
 |----------|-------------|
-| `ANTHROPIC_API_KEY` | Your Anthropic API key (required to use Claude) |
+| `ANTHROPIC_API_KEY` | Your API key (required) |
 | `FEATURE_FLAGS` | Comma-separated list of feature flags to enable (e.g., `KAIROS,VOICE_MODE`) |
 
 ### Notes
 
-- Some modules from the original source were not included in the leak (Anthropic-internal `@ant/*` packages, some tools). These have been replaced with stubs that export no-ops.
+- Some internal modules are not included and have been replaced with stubs that export no-ops.
 - The `bun:bundle` feature flag system is shimmed via a Bun plugin at `plugins/bunBundleDev.ts`. All flags default to `false` unless enabled via `FEATURE_FLAGS`.
 - The `MACRO.*` build-time constants are defined in `bunfig.toml` and injected by Bun's `--define` system.
 
@@ -69,15 +57,11 @@ bun run start -- -p "Hello Claude"
 
 ## Overview
 
-Claude Code is Anthropic's official CLI tool that lets you interact with Claude directly from the terminal to perform software engineering tasks — editing files, running commands, searching codebases, managing git workflows, and more.
+AI CLI is a terminal-based coding agent. It can edit files, run commands, search codebases, manage git workflows, and orchestrate multi-step engineering tasks.
 
-This repository contains the leaked `src/` directory.
-
-- **Leaked on**: 2026-03-31
 - **Language**: TypeScript
 - **Runtime**: Bun
 - **Terminal UI**: React + [Ink](https://github.com/vadimdemedes/ink) (React for CLI)
-- **Scale**: ~1,900 files, 512,000+ lines of code
 
 ---
 
@@ -89,7 +73,7 @@ src/
 ├── commands.ts              # Command registry
 ├── tools.ts                 # Tool registry
 ├── Tool.ts                  # Tool type definitions
-├── QueryEngine.ts           # LLM query engine (core Anthropic API caller)
+├── QueryEngine.ts           # LLM query engine (core API caller)
 ├── context.ts               # System/user context collection
 ├── cost-tracker.ts          # Token cost tracking
 │
@@ -118,7 +102,6 @@ src/
 ├── schemas/                 # Config schemas (Zod)
 ├── entrypoints/             # Initialization logic
 ├── ink/                     # Ink renderer wrapper
-├── buddy/                   # Companion sprite (Easter egg)
 ├── native-ts/               # Native TypeScript utils
 ├── outputStyles/            # Output styling
 ├── query/                   # Query pipeline
@@ -131,7 +114,7 @@ src/
 
 ### 1. Tool System (`src/tools/`)
 
-Every tool Claude Code can invoke is implemented as a self-contained module. Each tool defines its input schema, permission model, and execution logic.
+Every tool the agent can invoke is implemented as a self-contained module. Each tool defines its input schema, permission model, and execution logic.
 
 | Tool | Description |
 |---|---|
@@ -190,7 +173,7 @@ User-facing slash commands invoked with `/` prefix.
 
 | Service | Description |
 |---|---|
-| `api/` | Anthropic API client, file API, bootstrap |
+| `api/` | API client, file API, bootstrap |
 | `mcp/` | Model Context Protocol server connection and management |
 | `oauth/` | OAuth 2.0 authentication flow |
 | `lsp/` | Language Server Protocol manager |
@@ -205,7 +188,7 @@ User-facing slash commands invoked with `/` prefix.
 
 ### 4. Bridge System (`src/bridge/`)
 
-A bidirectional communication layer connecting IDE extensions (VS Code, JetBrains) with the Claude Code CLI.
+A bidirectional communication layer connecting IDE extensions (VS Code, JetBrains) with the CLI.
 
 - `bridgeMain.ts` — Bridge main loop
 - `bridgeMessaging.ts` — Message protocol
@@ -235,26 +218,6 @@ Notable flags: `PROACTIVE`, `KAIROS`, `BRIDGE_MODE`, `DAEMON`, `VOICE_MODE`, `AG
 
 ---
 
-## Key Files in Detail
-
-### `QueryEngine.ts` (~46K lines)
-
-The core engine for LLM API calls. Handles streaming responses, tool-call loops, thinking mode, retry logic, and token counting.
-
-### `Tool.ts` (~29K lines)
-
-Defines base types and interfaces for all tools — input schemas, permission models, and progress state types.
-
-### `commands.ts` (~25K lines)
-
-Manages registration and execution of all slash commands. Uses conditional imports to load different command sets per environment.
-
-### `main.tsx`
-
-Commander.js-based CLI parser + React/Ink renderer initialization. At startup, parallelizes MDM settings, keychain prefetch, and GrowthBook initialization for faster boot.
-
----
-
 ## Tech Stack
 
 | Category | Technology |
@@ -263,46 +226,11 @@ Commander.js-based CLI parser + React/Ink renderer initialization. At startup, p
 | Language | TypeScript (strict) |
 | Terminal UI | [React](https://react.dev) + [Ink](https://github.com/vadimdemedes/ink) |
 | CLI Parsing | [Commander.js](https://github.com/tj/commander.js) (extra-typings) |
-| Schema Validation | [Zod v4](https://zod.dev) |
+| Schema Validation | [Zod](https://zod.dev) |
 | Code Search | [ripgrep](https://github.com/BurntSushi/ripgrep) (via GrepTool) |
 | Protocols | [MCP SDK](https://modelcontextprotocol.io), LSP |
-| API | [Anthropic SDK](https://docs.anthropic.com) |
 | Telemetry | OpenTelemetry + gRPC |
 | Feature Flags | GrowthBook |
 | Auth | OAuth 2.0, JWT, macOS Keychain |
-
----
-
-## Notable Design Patterns
-
-### Parallel Prefetch
-
-Startup time is optimized by prefetching MDM settings, keychain reads, and API preconnect in parallel — before heavy module evaluation begins.
-
-```typescript
-// main.tsx — fired as side-effects before other imports
-startMdmRawRead()
-startKeychainPrefetch()
-```
-
-### Lazy Loading
-
-Heavy modules (OpenTelemetry ~400KB, gRPC ~700KB) are deferred via dynamic `import()` until actually needed.
-
-### Agent Swarms
-
-Sub-agents are spawned via `AgentTool`, with `coordinator/` handling multi-agent orchestration. `TeamCreateTool` enables team-level parallel work.
-
-### Skill System
-
-Reusable workflows defined in `skills/` and executed through `SkillTool`. Users can add custom skills.
-
-### Plugin Architecture
-
-Built-in and third-party plugins are loaded through the `plugins/` subsystem.
-
----
-
-## Disclaimer
-
-This repository archives source code that was leaked from Anthropic's npm registry on **2026-03-31**. All original source code is the property of [Anthropic](https://www.anthropic.com).
+</content>
+</invoke>

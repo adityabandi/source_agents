@@ -1,7 +1,7 @@
 {
-  "name": "claude-code",
+  "name": "ai-cli",
   "version": "1.0.0",
-  "description": "Claude Code CLI \u2014 Leaked Source (2026-03-31)",
+  "description": "AI CLI \u2014 a command-line coding assistant",
   "type": "module",
   "private": true,
   "scripts": {
