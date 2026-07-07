@@ -60,14 +60,14 @@ function pageToMessages(page: HistoryPage): Message[] {
 }
 
 /**
- * Lazy-load `claude assistant` history on scroll-up.
+ * Lazy-load `adicode assistant` history on scroll-up.
  *
  * On mount: fetch newest page via anchor_to_latest, prepend to messages.
  * On scroll-up near top: fetch next-older page via before_id, prepend with
  * scroll anchoring (viewport stays put).
  *
  * No-op unless config.viewerOnly. REPL only calls this hook inside a
- * feature('KAIROS') gate, so build-time elimination is handled there.
+ * feature('ADICODE') gate, so build-time elimination is handled there.
  */
 export function useAssistantHistory({
   config,

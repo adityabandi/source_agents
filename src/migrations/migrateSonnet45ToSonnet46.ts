@@ -37,10 +37,15 @@ export function migrateSonnet45ToSonnet46(): void {
 
   const model = getSettingsForSource('userSettings')?.model
   if (
-    model !== 'claude-sonnet-4-5-20250929' &&
-    model !== 'claude-sonnet-4-5-20250929[1m]' &&
+    // Current (rebranded) explicit Sonnet 4.5 strings
+    model !== 'adicode-sonnet-4-5-20250929' &&
+    model !== 'adicode-sonnet-4-5-20250929[1m]' &&
+    // Unprefixed forms (alias resolution / manual entry)
     model !== 'sonnet-4-5-20250929' &&
-    model !== 'sonnet-4-5-20250929[1m]'
+    model !== 'sonnet-4-5-20250929[1m]' &&
+    // Pre-rebrand strings, for users upgrading from the Claude Code build
+    model !== 'claude-sonnet-4-5-20250929' &&
+    model !== 'claude-sonnet-4-5-20250929[1m]'
   ) {
     return
   }

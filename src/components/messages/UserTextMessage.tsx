@@ -90,7 +90,7 @@ export function UserTextMessage(t0) {
     }
     return t1;
   }
-  if (feature("KAIROS_GITHUB_WEBHOOKS")) {
+  if (feature("ADICODE_GITHUB_WEBHOOKS")) {
     if (param.text.startsWith("<github-webhook-activity>")) {
       let t1;
       if ($[9] === Symbol.for("react.memo_cache_sentinel")) {
@@ -235,7 +235,7 @@ export function UserTextMessage(t0) {
       return t2;
     }
   }
-  if (feature("KAIROS") || feature("KAIROS_CHANNELS")) {
+  if (feature("ADICODE") || feature("ADICODE_CHANNELS")) {
     if (param.text.includes("<channel source=\"")) {
       let t1;
       if ($[40] === Symbol.for("react.memo_cache_sentinel")) {

@@ -223,7 +223,7 @@ export function createBridgeLogger(options: {
 
     if (process.env.USER_TYPE === 'ant' && debugLogPath) {
       writeStatus(
-        `${chalk.yellow('[ANT-ONLY] Logs:')} ${chalk.dim(debugLogPath)}\n`,
+        `${chalk.yellow('[ADICODE-ONLY] Logs:')} ${chalk.dim(debugLogPath)}\n`,
       )
     }
     writeStatus(`${indicatorColor(indicator)} ${stateText}${suffix}\n`)
@@ -299,7 +299,7 @@ export function createBridgeLogger(options: {
       regenerateQr(connectUrl)
 
       if (verbose) {
-        write(chalk.dim(`Remote Control`) + ` v${MACRO.VERSION}\n`)
+        write(chalk.dim(`Remote Control`) + ` v${ADICODE.VERSION}\n`)
       }
       if (verbose) {
         if (config.spawnMode !== 'single-session') {

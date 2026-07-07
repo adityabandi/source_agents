@@ -37,10 +37,21 @@ export function migrateLegacyOpusToCurrent(): void {
 
   const model = getSettingsForSource('userSettings')?.model
   if (
+    // Current (rebranded) explicit legacy Opus 4.0/4.1 strings
+    model !== 'adicode-opus-4-20250514' &&
+    model !== 'adicode-opus-4-1-20250805' &&
+    model !== 'adicode-opus-4-0' &&
+    model !== 'adicode-opus-4-1' &&
+    // Pre-rebrand strings, for users upgrading from the Claude Code build
     model !== 'claude-opus-4-20250514' &&
     model !== 'claude-opus-4-1-20250805' &&
     model !== 'claude-opus-4-0' &&
-    model !== 'claude-opus-4-1'
+    model !== 'claude-opus-4-1' &&
+    // Unprefixed legacy forms (alias resolution / manual entry)
+    model !== 'opus-4-20250514' &&
+    model !== 'opus-4-1-20250805' &&
+    model !== 'opus-4-0' &&
+    model !== 'opus-4-1'
   ) {
     return
   }

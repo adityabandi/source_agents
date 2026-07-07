@@ -64,7 +64,7 @@ const outputSchema = lazySchema(() =>
 type OutputSchema = ReturnType<typeof outputSchema>
 export type Output = z.infer<OutputSchema>
 
-const KAIROS_BRIEF_REFRESH_MS = 5 * 60 * 1000
+const ADICODE_BRIEF_REFRESH_MS = 5 * 60 * 1000
 
 /**
  * Entitlement check — is the user ALLOWED to use Brief? Combines build-time
@@ -72,15 +72,15 @@ const KAIROS_BRIEF_REFRESH_MS = 5 * 60 * 1000
  * here — this decides whether opt-in should be HONORED, not whether the user
  * has opted in.
  *
- * Build-time OR-gated on KAIROS || KAIROS_BRIEF (same pattern as
- * PROACTIVE || KAIROS): assistant mode depends on Brief, so KAIROS alone
- * must bundle it. KAIROS_BRIEF lets Brief ship independently.
+ * Build-time OR-gated on ADICODE || ADICODE_BRIEF (same pattern as
+ * PROACTIVE || ADICODE): assistant mode depends on Brief, so ADICODE alone
+ * must bundle it. ADICODE_BRIEF lets Brief ship independently.
  *
  * Use this to decide whether `--brief` / `defaultView: 'chat'` / `--tools`
  * listing should be honored. Use `isBriefEnabled()` to decide whether the
  * tool is actually active in the current session.
  *
- * CLAUDE_CODE_BRIEF env var force-grants entitlement for dev/testing —
+ * ADICODE_BRIEF env var force-grants entitlement for dev/testing —
  * bypasses the GB gate so you can test without being enrolled. Still
  * requires an opt-in action to activate (--brief, defaultView, etc.), but
  * the env var alone also sets userMsgOptIn via maybeActivateBrief().
@@ -88,13 +88,13 @@ const KAIROS_BRIEF_REFRESH_MS = 5 * 60 * 1000
 export function isBriefEntitled(): boolean {
   // Positive ternary — see docs/feature-gating.md. Negative early-return
   // would not eliminate the GB gate string from external builds.
-  return feature('KAIROS') || feature('KAIROS_BRIEF')
+  return feature('ADICODE') || feature('ADICODE_BRIEF')
     ? getKairosActive() ||
-        isEnvTruthy(process.env.CLAUDE_CODE_BRIEF) ||
+        isEnvTruthy(process.env.ADICODE_BRIEF) ||
         getFeatureValue_CACHED_WITH_REFRESH(
           'tengu_kairos_brief',
           false,
-          KAIROS_BRIEF_REFRESH_MS,
+          ADICODE_BRIEF_REFRESH_MS,
         )
     : false
 }
@@ -110,7 +110,7 @@ export function isBriefEntitled(): boolean {
  *   - `/brief` slash command (brief.ts)
  *   - `/config` defaultView picker (Config.tsx)
  *   - SendUserMessage in `--tools` / SDK `tools` option (main.tsx)
- *   - CLAUDE_CODE_BRIEF env var (maybeActivateBrief — dev/testing bypass)
+ *   - ADICODE_BRIEF env var (maybeActivateBrief — dev/testing bypass)
  * Assistant mode (kairosActive) bypasses opt-in since its system prompt
  * hard-codes "you MUST use SendUserMessage" (systemPrompt.md:14).
  *
@@ -128,7 +128,7 @@ export function isBriefEnabled(): boolean {
   // the ternary to `false` in external builds and then dead-code the BriefTool
   // object. Composing isBriefEntitled() alone (which has its own guard) is
   // semantically equivalent but defeats constant-folding across the boundary.
-  return feature('KAIROS') || feature('KAIROS_BRIEF')
+  return feature('ADICODE') || feature('ADICODE_BRIEF')
     ? (getKairosActive() || getUserMsgOptIn()) && isBriefEntitled()
     : false
 }

@@ -38,7 +38,7 @@ export function getTelemetryAttributes(): Attributes {
     attributes['session.id'] = sessionId
   }
   if (shouldIncludeAttribute('OTEL_METRICS_INCLUDE_VERSION')) {
-    attributes['app.version'] = MACRO.VERSION
+    attributes['app.version'] = ADICODE.VERSION
   }
 
   // Only include OAuth account data when actively using OAuth authentication
@@ -57,7 +57,7 @@ export function getTelemetryAttributes(): Attributes {
     ) {
       attributes['user.account_uuid'] = accountUuid
       attributes['user.account_id'] =
-        process.env.CLAUDE_CODE_ACCOUNT_TAGGED_ID ||
+        process.env.ADICODE_ACCOUNT_TAGGED_ID ||
         toTaggedId('user', accountUuid)
     }
   }

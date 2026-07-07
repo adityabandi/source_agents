@@ -1,6 +1,6 @@
 import { c as _c } from "react/compiler-runtime";
 import React, { useCallback, useEffect, useState } from 'react';
-import { checkIsGitClean, checkNeedsClaudeAiLogin } from 'src/utils/background/remote/preconditions.js';
+import { checkIsGitClean, checkNeedsAdicodeAiLogin } from 'src/utils/background/remote/preconditions.js';
 import { gracefulShutdownSync } from 'src/utils/gracefulShutdown.js';
 import { Box, Text } from '../ink.js';
 import { ConsoleOAuthFlow } from './ConsoleOAuthFlow.js';
@@ -88,12 +88,12 @@ export function TeleportError(t0) {
   } else {
     t6 = $[8];
   }
-  const handleLoginWithClaudeAI = t6;
+  const handleLoginWithAdicodeAI = t6;
   let t7;
   if ($[9] === Symbol.for("react.memo_cache_sentinel")) {
     t7 = value => {
       if (value === "login") {
-        handleLoginWithClaudeAI();
+        handleLoginWithAdicodeAI();
       } else {
         onCancel();
       }
@@ -135,7 +135,7 @@ export function TeleportError(t0) {
         if (isLoggingIn) {
           let t9;
           if ($[14] !== handleLoginComplete) {
-            t9 = <ConsoleOAuthFlow onDone={handleLoginComplete} mode="login" forceLoginMethod="claudeai" />;
+            t9 = <ConsoleOAuthFlow onDone={handleLoginComplete} mode="login" forceLoginMethod="adicodeai" />;
             $[14] = handleLoginComplete;
             $[15] = t9;
           } else {
@@ -145,7 +145,7 @@ export function TeleportError(t0) {
         }
         let t9;
         if ($[16] === Symbol.for("react.memo_cache_sentinel")) {
-          t9 = <Box flexDirection="column"><Text dimColor={true}>Teleport requires a Claude.ai account.</Text><Text dimColor={true}>Your Claude Pro/Max subscription will be used by AI CLI.</Text></Box>;
+          t9 = <Box flexDirection="column"><Text dimColor={true}>Teleport requires a Adicode.ai account.</Text><Text dimColor={true}>Your Adicode Pro/Max subscription will be used by AI CLI.</Text></Box>;
           $[16] = t9;
         } else {
           t9 = $[16];
@@ -153,7 +153,7 @@ export function TeleportError(t0) {
         let t10;
         if ($[17] === Symbol.for("react.memo_cache_sentinel")) {
           t10 = <Dialog title="Log in to the assistant" onCancel={onCancel}>{t9}<Select options={[{
-              label: "Login with Claude account",
+              label: "Login with Adicode account",
               value: "login"
             }, {
               label: "Exit",
@@ -177,7 +177,7 @@ function _temp() {
 }
 export async function getTeleportErrors(): Promise<Set<TeleportLocalErrorType>> {
   const errors = new Set<TeleportLocalErrorType>();
-  const [needsLogin, isGitClean] = await Promise.all([checkNeedsClaudeAiLogin(), checkIsGitClean()]);
+  const [needsLogin, isGitClean] = await Promise.all([checkNeedsAdicodeAiLogin(), checkIsGitClean()]);
   if (needsLogin) {
     errors.add('needsLogin');
   }

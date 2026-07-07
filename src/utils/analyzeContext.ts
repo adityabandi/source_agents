@@ -47,7 +47,7 @@ import type {
   UserMessage,
 } from '../types/message.js'
 import { toolToAPISchema } from './api.js'
-import { filterInjectedMemoryFiles, getMemoryFiles } from './claudemd.js'
+import { filterInjectedMemoryFiles, getMemoryFiles } from './adicodemd.js'
 import { getContextWindowForModel } from './context.js'
 import { getCwd } from './cwd.js'
 import { logForDebugging } from './debug.js'
@@ -319,25 +319,25 @@ async function countSystemTokens(
 
 async function countMemoryFileTokens(): Promise<{
   memoryFileDetails: MemoryFile[]
-  claudeMdTokens: number
+  adicodeMdTokens: number
 }> {
-  // Simple mode disables CLAUDE.md loading, so don't report tokens for them
-  if (isEnvTruthy(process.env.CLAUDE_CODE_SIMPLE)) {
-    return { memoryFileDetails: [], claudeMdTokens: 0 }
+  // Simple mode disables ADICODE.md loading, so don't report tokens for them
+  if (isEnvTruthy(process.env.ADICODE_SIMPLE)) {
+    return { memoryFileDetails: [], adicodeMdTokens: 0 }
   }
 
   const memoryFilesData = filterInjectedMemoryFiles(await getMemoryFiles())
   const memoryFileDetails: MemoryFile[] = []
-  let claudeMdTokens = 0
+  let adicodeMdTokens = 0
 
   if (memoryFilesData.length < 1) {
     return {
       memoryFileDetails: [],
-      claudeMdTokens: 0,
+      adicodeMdTokens: 0,
     }
   }
 
-  const claudeMdTokenCounts = await Promise.all(
+  const adicodeMdTokenCounts = await Promise.all(
     memoryFilesData.map(async file => {
       const tokens = await countTokensWithFallback(
         [{ role: 'user', content: file.content }],
@@ -348,8 +348,8 @@ async function countMemoryFileTokens(): Promise<{
     }),
   )
 
-  for (const { file, tokens } of claudeMdTokenCounts) {
-    claudeMdTokens += tokens
+  for (const { file, tokens } of adicodeMdTokenCounts) {
+    adicodeMdTokens += tokens
     memoryFileDetails.push({
       path: file.path,
       type: file.type,
@@ -357,7 +357,7 @@ async function countMemoryFileTokens(): Promise<{
     })
   }
 
-  return { claudeMdTokens, memoryFileDetails }
+  return { adicodeMdTokens, memoryFileDetails }
 }
 
 async function countBuiltInToolTokens(
@@ -949,7 +949,7 @@ export async function analyzeContextUsage(
   // Critical operations that should not fail due to skills
   const [
     { systemPromptTokens, systemPromptSections },
-    { claudeMdTokens, memoryFileDetails },
+    { adicodeMdTokens, memoryFileDetails },
     {
       builtInToolTokens,
       deferredBuiltinDetails,
@@ -1023,7 +1023,7 @@ export async function analyzeContextUsage(
     cats.push({
       name:
         process.env.USER_TYPE === 'ant'
-          ? '[ANT-ONLY] System tools'
+          ? '[ADICODE-ONLY] System tools'
           : 'System tools',
       tokens: systemToolsTokens,
       color: 'inactive',
@@ -1070,11 +1070,11 @@ export async function analyzeContextUsage(
   }
 
   // Memory files after custom agents
-  if (claudeMdTokens > 0) {
+  if (adicodeMdTokens > 0) {
     cats.push({
       name: 'Memory files',
-      tokens: claudeMdTokens,
-      color: 'claude',
+      tokens: adicodeMdTokens,
+      color: 'adicode',
     })
   }
 

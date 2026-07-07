@@ -1,4 +1,4 @@
-// Mock rate limits for testing [ANT-ONLY]
+// Mock rate limits for testing [ADICODE-ONLY]
 // This allows testing various rate limit scenarios without hitting actual limits
 //
 // ⚠️  WARNING: This is for internal testing/demo purposes only!
@@ -7,7 +7,7 @@
 
 import type { SubscriptionType } from '../services/oauth/types.js'
 import { setMockBillingAccessOverride } from '../utils/billing.js'
-import type { OverageDisabledReason } from './claudeAiLimits.js'
+import type { OverageDisabledReason } from './adicodeAiLimits.js'
 
 type MockHeaders = {
   'anthropic-ratelimit-unified-status'?:
@@ -604,8 +604,8 @@ export function getMockHeaderless429Message(): string | null {
     return null
   }
   // Env var path for -p / SDK testing where slash commands aren't available
-  if (process.env.CLAUDE_MOCK_HEADERLESS_429) {
-    return process.env.CLAUDE_MOCK_HEADERLESS_429
+  if (process.env.ADICODE_MOCK_HEADERLESS_429) {
+    return process.env.ADICODE_MOCK_HEADERLESS_429
   }
   if (!mockEnabled) {
     return null
@@ -714,7 +714,7 @@ export function shouldProcessMockLimits(): boolean {
   if (process.env.USER_TYPE !== 'ant') {
     return false
   }
-  return mockEnabled || Boolean(process.env.CLAUDE_MOCK_HEADERLESS_429)
+  return mockEnabled || Boolean(process.env.ADICODE_MOCK_HEADERLESS_429)
 }
 
 export function getCurrentMockScenario(): MockScenario | null {

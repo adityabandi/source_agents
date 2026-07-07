@@ -1,10 +1,10 @@
 import { formatTotalCost } from '../../cost-tracker.js'
-import { currentLimits } from '../../services/claudeAiLimits.js'
+import { currentLimits } from '../../services/adicodeAiLimits.js'
 import type { LocalCommandCall } from '../../types/command.js'
-import { isClaudeAISubscriber } from '../../utils/auth.js'
+import { isAdicodeAISubscriber } from '../../utils/auth.js'
 
 export const call: LocalCommandCall = async () => {
-  if (isClaudeAISubscriber()) {
+  if (isAdicodeAISubscriber()) {
     let value: string
 
     if (currentLimits.isUsingOverage) {
@@ -16,7 +16,7 @@ export const call: LocalCommandCall = async () => {
     }
 
     if (process.env.USER_TYPE === 'ant') {
-      value += `\n\n[ANT-ONLY] Showing cost anyway:\n ${formatTotalCost()}`
+      value += `\n\n[ADICODE-ONLY] Showing cost anyway:\n ${formatTotalCost()}`
     }
     return { type: 'text', value }
   }

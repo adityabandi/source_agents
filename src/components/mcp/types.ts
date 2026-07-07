@@ -1,6 +1,6 @@
 // Stub: not included in leaked source
 export interface AgentMcpServerInfo {}
-export interface ClaudeAIServerInfo {}
+export interface AdicodeAIServerInfo {}
 export interface HTTPServerInfo {}
 export interface MCPViewState {}
 export interface SSEServerInfo {}

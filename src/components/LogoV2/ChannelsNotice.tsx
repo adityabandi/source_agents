@@ -1,6 +1,6 @@
 import { c as _c } from "react/compiler-runtime";
-// Conditionally require()'d in LogoV2.tsx behind feature('KAIROS') ||
-// feature('KAIROS_CHANNELS'). No feature() guard here — the whole file
+// Conditionally require()'d in LogoV2.tsx behind feature('ADICODE') ||
+// feature('ADICODE_CHANNELS'). No feature() guard here — the whole file
 // tree-shakes via the require pattern when both flags are false (see
 // docs/feature-gating.md). Do NOT import this module statically from
 // unguarded code.
@@ -12,7 +12,7 @@ import { Box, Text } from '../../ink.js';
 import { isChannelsEnabled } from '../../services/mcp/channelAllowlist.js';
 import { getEffectiveChannelAllowlist } from '../../services/mcp/channelNotification.js';
 import { getMcpConfigsByScope } from '../../services/mcp/config.js';
-import { getClaudeAIOAuthTokens, getSubscriptionType } from '../../utils/auth.js';
+import { getAdicodeAIOAuthTokens, getSubscriptionType } from '../../utils/auth.js';
 import { loadInstalledPluginsV2 } from '../../utils/plugins/installedPluginsManager.js';
 import { getSettingsForSource } from '../../utils/settings/settings.js';
 export function ChannelsNotice() {
@@ -70,7 +70,7 @@ export function ChannelsNotice() {
     }
     let t2;
     if ($[9] === Symbol.for("react.memo_cache_sentinel")) {
-      t2 = <Text dimColor={true}>Channels require claude.ai authentication · run /login, then restart</Text>;
+      t2 = <Text dimColor={true}>Channels require adicode.ai authentication · run /login, then restart</Text>;
       $[9] = t2;
     } else {
       t2 = $[9];
@@ -190,7 +190,7 @@ function _temp() {
   return {
     channels: ch,
     disabled: !isChannelsEnabled(),
-    noAuth: !getClaudeAIOAuthTokens()?.accessToken,
+    noAuth: !getAdicodeAIOAuthTokens()?.accessToken,
     policyBlocked: managed && policy?.channelsEnabled !== true,
     list: l,
     unmatched: findUnmatched(ch, allowlist)

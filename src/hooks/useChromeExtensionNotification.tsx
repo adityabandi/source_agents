@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Text } from '../ink.js';
-import { isClaudeAISubscriber } from '../utils/auth.js';
-import { isChromeExtensionInstalled, shouldEnableClaudeInChrome } from '../utils/claudeInChrome/setup.js';
+import { isAdicodeAISubscriber } from '../utils/auth.js';
+import { isChromeExtensionInstalled, shouldEnableAdicodeInChrome } from '../utils/adicodeInChrome/setup.js';
 import { isRunningOnHomespace } from '../utils/envUtils.js';
 import { useStartupNotification } from './notifs/useStartupNotification.js';
 function getChromeFlag(): boolean | undefined {
@@ -18,13 +18,13 @@ export function useChromeExtensionNotification() {
 }
 async function _temp() {
   const chromeFlag = getChromeFlag();
-  if (!shouldEnableClaudeInChrome(chromeFlag)) {
+  if (!shouldEnableAdicodeInChrome(chromeFlag)) {
     return null;
   }
-  if (true && !isClaudeAISubscriber()) {
+  if (true && !isAdicodeAISubscriber()) {
     return {
       key: "chrome-requires-subscription",
-      jsx: <Text color="error">The assistant in Chrome requires a claude.ai subscription</Text>,
+      jsx: <Text color="error">The assistant in Chrome requires a adicode.ai subscription</Text>,
       priority: "immediate",
       timeoutMs: 5000
     };
@@ -40,7 +40,7 @@ async function _temp() {
   }
   if (chromeFlag === undefined) {
     return {
-      key: "claude-in-chrome-default-enabled",
+      key: "adicode-in-chrome-default-enabled",
       text: "The assistant in Chrome enabled \xB7 /chrome",
       priority: "low"
     };

@@ -37,17 +37,17 @@ export function PackageManagerAutoUpdater(t0) {
       const maxVersion = await getMaxVersion();
       if (maxVersion && latest && gt(latest, maxVersion)) {
         logForDebugging(`PackageManagerAutoUpdater: maxVersion ${maxVersion} is set, capping update from ${latest} to ${maxVersion}`);
-        if (gte(MACRO.VERSION, maxVersion)) {
-          logForDebugging(`PackageManagerAutoUpdater: current version ${MACRO.VERSION} is already at or above maxVersion ${maxVersion}, skipping update`);
+        if (gte(ADICODE.VERSION, maxVersion)) {
+          logForDebugging(`PackageManagerAutoUpdater: current version ${ADICODE.VERSION} is already at or above maxVersion ${maxVersion}, skipping update`);
           setUpdateAvailable(false);
           return;
         }
         latest = maxVersion;
       }
-      const hasUpdate = latest && !gte(MACRO.VERSION, latest) && !shouldSkipVersion(latest);
+      const hasUpdate = latest && !gte(ADICODE.VERSION, latest) && !shouldSkipVersion(latest);
       setUpdateAvailable(!!hasUpdate);
       if (hasUpdate) {
-        logForDebugging(`PackageManagerAutoUpdater: Update available ${MACRO.VERSION} -> ${latest}`);
+        logForDebugging(`PackageManagerAutoUpdater: Update available ${ADICODE.VERSION} -> ${latest}`);
       }
     };
     $[0] = t1;
@@ -73,10 +73,10 @@ export function PackageManagerAutoUpdater(t0) {
   if (!updateAvailable) {
     return null;
   }
-  const updateCommand = packageManager === "homebrew" ? "brew upgrade claude-code" : packageManager === "winget" ? "winget upgrade Anthropic.ClaudeCode" : packageManager === "apk" ? "apk upgrade claude-code" : "your package manager update command";
+  const updateCommand = packageManager === "homebrew" ? "brew upgrade adicode" : packageManager === "winget" ? "winget upgrade Anthropic.Adicode" : packageManager === "apk" ? "apk upgrade adicode" : "your package manager update command";
   let t4;
   if ($[3] !== verbose) {
-    t4 = verbose && <Text dimColor={true} wrap="truncate">currentVersion: {MACRO.VERSION}</Text>;
+    t4 = verbose && <Text dimColor={true} wrap="truncate">currentVersion: {ADICODE.VERSION}</Text>;
     $[3] = verbose;
     $[4] = t4;
   } else {

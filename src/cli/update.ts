@@ -15,7 +15,7 @@ import { logForDebugging } from 'src/utils/debug.js'
 import { getDoctorDiagnostic } from 'src/utils/doctorDiagnostic.js'
 import { gracefulShutdown } from 'src/utils/gracefulShutdown.js'
 import {
-  installOrUpdateClaudePackage,
+  installOrUpdateAdicodePackage,
   localInstallationExists,
 } from 'src/utils/localInstaller.js'
 import {
@@ -29,7 +29,7 @@ import { getInitialSettings } from 'src/utils/settings/settings.js'
 
 export async function update() {
   logEvent('tengu_update_check', {})
-  writeToStdout(`Current version: ${MACRO.VERSION}\n`)
+  writeToStdout(`Current version: ${ADICODE.VERSION}\n`)
 
   const channel = getInitialSettings()?.autoUpdatesChannel ?? 'latest'
   writeToStdout(`Checking for updates to ${channel} version...\n`)
@@ -64,7 +64,7 @@ export async function update() {
       logForDebugging(`update: Warning detected: ${warning.issue}`)
 
       // Don't skip PATH warnings - they're always relevant
-      // The user needs to know that 'which claude' points elsewhere
+      // The user needs to know that 'which adicode' points elsewhere
       logForDebugging(`update: Showing warning: ${warning.issue}`)
 
       writeToStdout(chalk.yellow(`Warning: ${warning.issue}\n`))
@@ -122,23 +122,23 @@ export async function update() {
     if (packageManager === 'homebrew') {
       writeToStdout('The assistant is managed by Homebrew.\n')
       const latest = await getLatestVersion(channel)
-      if (latest && !gte(MACRO.VERSION, latest)) {
-        writeToStdout(`Update available: ${MACRO.VERSION} → ${latest}\n`)
+      if (latest && !gte(ADICODE.VERSION, latest)) {
+        writeToStdout(`Update available: ${ADICODE.VERSION} → ${latest}\n`)
         writeToStdout('\n')
         writeToStdout('To update, run:\n')
-        writeToStdout(chalk.bold('  brew upgrade claude-code') + '\n')
+        writeToStdout(chalk.bold('  brew upgrade adicode') + '\n')
       } else {
         writeToStdout('The assistant is up to date!\n')
       }
     } else if (packageManager === 'winget') {
       writeToStdout('The assistant is managed by winget.\n')
       const latest = await getLatestVersion(channel)
-      if (latest && !gte(MACRO.VERSION, latest)) {
-        writeToStdout(`Update available: ${MACRO.VERSION} → ${latest}\n`)
+      if (latest && !gte(ADICODE.VERSION, latest)) {
+        writeToStdout(`Update available: ${ADICODE.VERSION} → ${latest}\n`)
         writeToStdout('\n')
         writeToStdout('To update, run:\n')
         writeToStdout(
-          chalk.bold('  winget upgrade Anthropic.ClaudeCode') + '\n',
+          chalk.bold('  winget upgrade Anthropic.Adicode') + '\n',
         )
       } else {
         writeToStdout('The assistant is up to date!\n')
@@ -146,11 +146,11 @@ export async function update() {
     } else if (packageManager === 'apk') {
       writeToStdout('The assistant is managed by apk.\n')
       const latest = await getLatestVersion(channel)
-      if (latest && !gte(MACRO.VERSION, latest)) {
-        writeToStdout(`Update available: ${MACRO.VERSION} → ${latest}\n`)
+      if (latest && !gte(ADICODE.VERSION, latest)) {
+        writeToStdout(`Update available: ${ADICODE.VERSION} → ${latest}\n`)
         writeToStdout('\n')
         writeToStdout('To update, run:\n')
-        writeToStdout(chalk.bold('  apk upgrade claude-code') + '\n')
+        writeToStdout(chalk.bold('  apk upgrade adicode') + '\n')
       } else {
         writeToStdout('The assistant is up to date!\n')
       }
@@ -236,14 +236,14 @@ export async function update() {
         await gracefulShutdown(1)
       }
 
-      if (result.latestVersion === MACRO.VERSION) {
+      if (result.latestVersion === ADICODE.VERSION) {
         writeToStdout(
-          chalk.green(`AI CLI is up to date (${MACRO.VERSION})`) + '\n',
+          chalk.green(`AI CLI is up to date (${ADICODE.VERSION})`) + '\n',
         )
       } else {
         writeToStdout(
           chalk.green(
-            `Successfully updated from ${MACRO.VERSION} to version ${result.latestVersion}`,
+            `Successfully updated from ${ADICODE.VERSION} to version ${result.latestVersion}`,
           ) + '\n',
         )
         await regenerateCompletionCache()
@@ -252,7 +252,7 @@ export async function update() {
     } catch (error) {
       process.stderr.write('Error: Failed to install native update\n')
       process.stderr.write(String(error) + '\n')
-      process.stderr.write('Try running "claude doctor" for diagnostics\n')
+      process.stderr.write('Try running "adicode doctor" for diagnostics\n')
       await gracefulShutdown(1)
     }
   }
@@ -265,9 +265,9 @@ export async function update() {
   }
 
   logForDebugging('update: Checking npm registry for latest version')
-  logForDebugging(`update: Package URL: ${MACRO.PACKAGE_URL}`)
+  logForDebugging(`update: Package URL: ${ADICODE.PACKAGE_URL}`)
   const npmTag = channel === 'stable' ? 'stable' : 'latest'
-  const npmCommand = `npm view ${MACRO.PACKAGE_URL}@${npmTag} version`
+  const npmCommand = `npm view ${ADICODE.PACKAGE_URL}@${npmTag} version`
   logForDebugging(`update: Running: ${npmCommand}`)
   const latestVersion = await getLatestVersion(channel)
   logForDebugging(
@@ -283,7 +283,7 @@ export async function update() {
     process.stderr.write('  • Network connectivity issues\n')
     process.stderr.write('  • npm registry is unreachable\n')
     process.stderr.write('  • Corporate proxy/firewall blocking npm\n')
-    if (MACRO.PACKAGE_URL && !MACRO.PACKAGE_URL.startsWith('@anthropic')) {
+    if (ADICODE.PACKAGE_URL && !ADICODE.PACKAGE_URL.startsWith('@anthropic')) {
       process.stderr.write(
         '  • Internal/development build not published to npm\n',
       )
@@ -293,7 +293,7 @@ export async function update() {
     process.stderr.write('  • Check your internet connection\n')
     process.stderr.write('  • Run with --debug flag for more details\n')
     const packageName =
-      MACRO.PACKAGE_URL ||
+      ADICODE.PACKAGE_URL ||
       (process.env.USER_TYPE === 'ant'
         ? '@anthropic-ai/claude-cli'
         : '@anthropic-ai/claude-code')
@@ -306,15 +306,15 @@ export async function update() {
   }
 
   // Check if versions match exactly, including any build metadata (like SHA)
-  if (latestVersion === MACRO.VERSION) {
+  if (latestVersion === ADICODE.VERSION) {
     writeToStdout(
-      chalk.green(`AI CLI is up to date (${MACRO.VERSION})`) + '\n',
+      chalk.green(`AI CLI is up to date (${ADICODE.VERSION})`) + '\n',
     )
     await gracefulShutdown(0)
   }
 
   writeToStdout(
-    `New version available: ${latestVersion} (current: ${MACRO.VERSION})\n`,
+    `New version available: ${latestVersion} (current: ${ADICODE.VERSION})\n`,
   )
   writeToStdout('Installing update...\n')
 
@@ -360,9 +360,9 @@ export async function update() {
 
   if (useLocalUpdate) {
     logForDebugging(
-      'update: Calling installOrUpdateClaudePackage() for local update',
+      'update: Calling installOrUpdateAdicodePackage() for local update',
     )
-    status = await installOrUpdateClaudePackage(channel)
+    status = await installOrUpdateAdicodePackage(channel)
   } else {
     logForDebugging('update: Calling installGlobalPackage() for global update')
     status = await installGlobalPackage()
@@ -374,7 +374,7 @@ export async function update() {
     case 'success':
       writeToStdout(
         chalk.green(
-          `Successfully updated from ${MACRO.VERSION} to version ${latestVersion}`,
+          `Successfully updated from ${ADICODE.VERSION} to version ${latestVersion}`,
         ) + '\n',
       )
       await regenerateCompletionCache()
@@ -386,12 +386,12 @@ export async function update() {
       if (useLocalUpdate) {
         process.stderr.write('Try manually updating with:\n')
         process.stderr.write(
-          `  cd ~/.claude/local && npm update ${MACRO.PACKAGE_URL}\n`,
+          `  cd ~/.adicode/local && npm update ${ADICODE.PACKAGE_URL}\n`,
         )
       } else {
         process.stderr.write('Try running with sudo or fix npm permissions\n')
         process.stderr.write(
-          'Or consider using native installation with: claude install\n',
+          'Or consider using native installation with: adicode install\n',
         )
       }
       await gracefulShutdown(1)
@@ -401,11 +401,11 @@ export async function update() {
       if (useLocalUpdate) {
         process.stderr.write('Try manually updating with:\n')
         process.stderr.write(
-          `  cd ~/.claude/local && npm update ${MACRO.PACKAGE_URL}\n`,
+          `  cd ~/.adicode/local && npm update ${ADICODE.PACKAGE_URL}\n`,
         )
       } else {
         process.stderr.write(
-          'Or consider using native installation with: claude install\n',
+          'Or consider using native installation with: adicode install\n',
         )
       }
       await gracefulShutdown(1)

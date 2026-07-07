@@ -16,7 +16,7 @@ export { asSystemPrompt, type SystemPrompt } from './systemPromptType.js'
 // into non-proactive builds.
 /* eslint-disable @typescript-eslint/no-require-imports */
 const proactiveModule =
-  feature('PROACTIVE') || feature('KAIROS')
+  feature('PROACTIVE') || feature('ADICODE')
     ? (require('../proactive/index.js') as typeof import('../proactive/index.js'))
     : null
 /* eslint-enable @typescript-eslint/no-require-imports */
@@ -61,7 +61,7 @@ export function buildEffectiveSystemPrompt({
   // dependency issues during test module loading.
   if (
     feature('COORDINATOR_MODE') &&
-    isEnvTruthy(process.env.CLAUDE_CODE_COORDINATOR_MODE) &&
+    isEnvTruthy(process.env.ADICODE_COORDINATOR_MODE) &&
     !mainThreadAgentDefinition
   ) {
     // Lazy require to avoid circular dependency at module load time
@@ -102,7 +102,7 @@ export function buildEffectiveSystemPrompt({
   // add domain-specific behavior on top — same pattern as teammates.
   if (
     agentSystemPrompt &&
-    (feature('PROACTIVE') || feature('KAIROS')) &&
+    (feature('PROACTIVE') || feature('ADICODE')) &&
     isProactiveActive_SAFE_TO_CALL_ANYWHERE()
   ) {
     return asSystemPrompt([

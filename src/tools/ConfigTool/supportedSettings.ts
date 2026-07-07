@@ -161,7 +161,7 @@ export const SUPPORTED_SETTINGS: Record<string, SettingConfig> = {
         },
       }
     : {}),
-  ...(feature('KAIROS') || feature('KAIROS_PUSH_NOTIFICATION')
+  ...(feature('ADICODE') || feature('ADICODE_PUSH_NOTIFICATION')
     ? {
         taskCompleteNotifEnabled: {
           source: 'global' as const,

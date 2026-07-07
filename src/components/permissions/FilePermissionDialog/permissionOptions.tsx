@@ -9,40 +9,40 @@ import { expandPath, getDirectoryForPath } from '../../../utils/path.js';
 import { normalizeCaseForComparison, pathInAllowedWorkingPath } from '../../../utils/permissions/filesystem.js';
 import type { OptionWithDescription } from '../../CustomSelect/select.js';
 /**
- * Check if a path is within the project's .claude/ folder.
- * This is used to determine whether to show the special ".claude folder" permission option.
+ * Check if a path is within the project's .adicode/ folder.
+ * This is used to determine whether to show the special ".adicode folder" permission option.
  */
-export function isInClaudeFolder(filePath: string): boolean {
+export function isInAdicodeFolder(filePath: string): boolean {
   const absolutePath = expandPath(filePath);
-  const claudeFolderPath = expandPath(`${getOriginalCwd()}/.claude`);
+  const adicodeFolderPath = expandPath(`${getOriginalCwd()}/.adicode`);
 
-  // Check if the path is within the project's .claude folder
+  // Check if the path is within the project's .adicode folder
   const normalizedAbsolutePath = normalizeCaseForComparison(absolutePath);
-  const normalizedClaudeFolderPath = normalizeCaseForComparison(claudeFolderPath);
+  const normalizedAdicodeFolderPath = normalizeCaseForComparison(adicodeFolderPath);
 
-  // Path must start with the .claude folder path (and be inside it, not just the folder itself)
-  return normalizedAbsolutePath.startsWith(normalizedClaudeFolderPath + sep.toLowerCase()) ||
+  // Path must start with the .adicode folder path (and be inside it, not just the folder itself)
+  return normalizedAbsolutePath.startsWith(normalizedAdicodeFolderPath + sep.toLowerCase()) ||
   // Also match case where sep is / on posix systems
-  normalizedAbsolutePath.startsWith(normalizedClaudeFolderPath + '/');
+  normalizedAbsolutePath.startsWith(normalizedAdicodeFolderPath + '/');
 }
 
 /**
- * Check if a path is within the global ~/.claude/ folder.
- * This is used to determine whether to show the special ".claude folder" permission option
+ * Check if a path is within the global ~/.adicode/ folder.
+ * This is used to determine whether to show the special ".adicode folder" permission option
  * for files in the user's home directory.
  */
-export function isInGlobalClaudeFolder(filePath: string): boolean {
+export function isInGlobalAdicodeFolder(filePath: string): boolean {
   const absolutePath = expandPath(filePath);
-  const globalClaudeFolderPath = join(homedir(), '.claude');
+  const globalAdicodeFolderPath = join(homedir(), '.adicode');
   const normalizedAbsolutePath = normalizeCaseForComparison(absolutePath);
-  const normalizedGlobalClaudeFolderPath = normalizeCaseForComparison(globalClaudeFolderPath);
-  return normalizedAbsolutePath.startsWith(normalizedGlobalClaudeFolderPath + sep.toLowerCase()) || normalizedAbsolutePath.startsWith(normalizedGlobalClaudeFolderPath + '/');
+  const normalizedGlobalAdicodeFolderPath = normalizeCaseForComparison(globalAdicodeFolderPath);
+  return normalizedAbsolutePath.startsWith(normalizedGlobalAdicodeFolderPath + sep.toLowerCase()) || normalizedAbsolutePath.startsWith(normalizedGlobalAdicodeFolderPath + '/');
 }
 export type PermissionOption = {
   type: 'accept-once';
 } | {
   type: 'accept-session';
-  scope?: 'claude-folder' | 'global-claude-folder';
+  scope?: 'adicode-folder' | 'global-adicode-folder';
 } | {
   type: 'reject';
 };
@@ -94,21 +94,21 @@ export function getFilePermissionOptions({
   }
   const inAllowedPath = pathInAllowedWorkingPath(filePath, toolPermissionContext);
 
-  // Check if this is a .claude/ folder path (project or global)
-  const inClaudeFolder = isInClaudeFolder(filePath);
-  const inGlobalClaudeFolder = isInGlobalClaudeFolder(filePath);
+  // Check if this is a .adicode/ folder path (project or global)
+  const inAdicodeFolder = isInAdicodeFolder(filePath);
+  const inGlobalAdicodeFolder = isInGlobalAdicodeFolder(filePath);
 
-  // Option 2: For .claude/ folder, show special option instead of generic session option
+  // Option 2: For .adicode/ folder, show special option instead of generic session option
   // Note: Session-level options are always shown since they only affect in-memory state,
   // not persisted settings. The allowManagedPermissionRulesOnly setting only restricts
   // persisted permission rules.
-  if ((inClaudeFolder || inGlobalClaudeFolder) && operationType !== 'read') {
+  if ((inAdicodeFolder || inGlobalAdicodeFolder) && operationType !== 'read') {
     options.push({
       label: 'Yes, and allow the assistant to edit its own settings for this session',
-      value: 'yes-claude-folder',
+      value: 'yes-adicode-folder',
       option: {
         type: 'accept-session',
-        scope: inGlobalClaudeFolder ? 'global-claude-folder' : 'claude-folder'
+        scope: inGlobalAdicodeFolder ? 'global-adicode-folder' : 'adicode-folder'
       }
     });
   } else {

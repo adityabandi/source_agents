@@ -89,12 +89,12 @@ export function NativeAutoUpdater({
     try {
       // Check if current version is above the max allowed version
       const maxVersion = await getMaxVersion();
-      if (maxVersion && gt(MACRO.VERSION, maxVersion)) {
+      if (maxVersion && gt(ADICODE.VERSION, maxVersion)) {
         const msg = await getMaxVersionMessage();
         setMaxVersionIssue(msg ?? 'affects your version');
       }
       const result = await installLatest(channel);
-      const currentVersion = MACRO.VERSION;
+      const currentVersion = ADICODE.VERSION;
       const latencyMs = Date.now() - startTime;
 
       // Handle lock contention gracefully - just return without treating as error
@@ -186,7 +186,7 @@ export function NativeAutoUpdater({
         </Text>}
       {maxVersionIssue && "external" === 'ant' && <Text color="warning">
           ⚠ Known issue: {maxVersionIssue} &middot; Run{' '}
-          <Text bold>claude rollback --safe</Text> to downgrade
+          <Text bold>adicode rollback --safe</Text> to downgrade
         </Text>}
     </Box>;
 }

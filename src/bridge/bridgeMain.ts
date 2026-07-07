@@ -109,12 +109,12 @@ function pollSleepDetectionThresholdMs(backoff: BackoffConfig): number {
 }
 
 /**
- * Returns the args that must precede CLI flags when spawning a child claude
- * process. In compiled binaries, process.execPath is the claude binary itself
+ * Returns the args that must precede CLI flags when spawning a child adicode
+ * process. In compiled binaries, process.execPath is the adicode binary itself
  * and args go directly to it. In npm installs (node running cli.js),
  * process.execPath is the node runtime — the child spawn must pass the script
  * path as the first arg, otherwise node interprets --sdk-url as a node option
- * and exits with "bad option: --sdk-url". See anthropics/claude-code#28334.
+ * and exits with "bad option: --sdk-url". See anthropics/adicode#28334.
  */
 function spawnScriptArgs(): string[] {
   if (isInBundledMode() || !process.argv[1]) {
@@ -349,7 +349,7 @@ export async function runBridgeLoop(
           ? `${config.debugFile.slice(0, ext)}-*${config.debugFile.slice(ext)}`
           : `${config.debugFile}-*`
     } else {
-      debugGlob = join(tmpdir(), 'claude', 'bridge-session-*.log')
+      debugGlob = join(tmpdir(), 'adicode', 'bridge-session-*.log')
     }
     logger.setDebugLogPath(debugGlob)
   }
@@ -913,7 +913,7 @@ export async function runBridgeLoop(
           // ant-dev override (e.g. forcing v2 before the server flag is on).
           if (
             secret.use_code_sessions === true ||
-            isEnvTruthy(process.env.CLAUDE_BRIDGE_USE_CCR_V2)
+            isEnvTruthy(process.env.ADICODE_BRIDGE_USE_CCR_V2)
           ) {
             sdkUrl = buildCCRv2SdkUrl(config.apiBaseUrl, sessionId)
             // Retry once on transient failure (network blip, 500) before
@@ -1135,7 +1135,7 @@ export async function runBridgeLoop(
           } else if (config.verbose || process.env.USER_TYPE === 'ant') {
             sessionDebugFile = join(
               tmpdir(),
-              'claude',
+              'adicode',
               `bridge-session-${safeId}.log`,
             )
           }
@@ -1513,23 +1513,23 @@ export async function runBridgeLoop(
   }
 
   // In single-session mode with a known session, leave the session and
-  // environment alive so `claude remote-control --session-id=<id>` can resume.
+  // environment alive so `adicode remote-control --session-id=<id>` can resume.
   // The backend GCs stale environments via a 4h TTL (BRIDGE_LAST_POLL_TTL).
   // Archiving the session or deregistering the environment would make the
   // printed resume command a lie — deregister deletes Firestore + Redis stream.
   // Skip when the loop exited fatally (env expired, auth failed, give-up) —
   // resume is impossible in those cases and the message would contradict the
   // error already printed.
-  // feature('KAIROS') gate: --session-id is ant-only; without the gate,
+  // feature('ADICODE') gate: --session-id is ant-only; without the gate,
   // revert to the pre-PR behavior (archive + deregister on every shutdown).
   if (
-    feature('KAIROS') &&
+    feature('ADICODE') &&
     config.spawnMode === 'single-session' &&
     initialSessionId &&
     !fatalExit
   ) {
     logger.logStatus(
-      `Resume this session by running \`claude remote-control --continue\``,
+      `Resume this session by running \`adicode remote-control --continue\``,
     )
     logForDebugging(
       `[bridge:shutdown] Skipping archive+deregister to allow resume of session ${initialSessionId}`,
@@ -1776,7 +1776,7 @@ export function parseArgs(args: string[]): ParsedArgs {
     } else if (arg.startsWith('--name=')) {
       name = arg.slice('--name='.length)
     } else if (
-      feature('KAIROS') &&
+      feature('ADICODE') &&
       arg === '--session-id' &&
       i + 1 < args.length
     ) {
@@ -1784,12 +1784,12 @@ export function parseArgs(args: string[]): ParsedArgs {
       if (!sessionId) {
         return makeError('--session-id requires a value')
       }
-    } else if (feature('KAIROS') && arg.startsWith('--session-id=')) {
+    } else if (feature('ADICODE') && arg.startsWith('--session-id=')) {
       sessionId = arg.slice('--session-id='.length)
       if (!sessionId) {
         return makeError('--session-id requires a value')
       }
-    } else if (feature('KAIROS') && (arg === '--continue' || arg === '-c')) {
+    } else if (feature('ADICODE') && (arg === '--continue' || arg === '-c')) {
       continueSession = true
     } else if (arg === '--spawn' || arg.startsWith('--spawn=')) {
       if (spawnMode !== undefined) {
@@ -1820,7 +1820,7 @@ export function parseArgs(args: string[]): ParsedArgs {
       createSessionInDir = false
     } else {
       return makeError(
-        `Unknown argument: ${arg}\nRun 'claude remote-control --help' for usage.`,
+        `Unknown argument: ${arg}\nRun 'adicode remote-control --help' for usage.`,
       )
     }
   }
@@ -1918,14 +1918,14 @@ async function printHelp(): Promise<void> {
 `
     : ''
   const help = `
-Remote Control - Connect your local environment to claude.ai/code
+Remote Control - Connect your local environment to adicode.ai/code
 
 USAGE
-  claude remote-control [options]
+  adicode remote-control [options]
 OPTIONS
-  --name <name>                    Name for the session (shown in claude.ai/code)
+  --name <name>                    Name for the session (shown in adicode.ai/code)
 ${
-  feature('KAIROS')
+  feature('ADICODE')
     ? `  -c, --continue                   Resume the last session in this directory
   --session-id <id>                Resume a specific session by ID (cannot be
                                    used with spawn flags or --continue)
@@ -1939,12 +1939,12 @@ ${
 ${serverOptions}
 DESCRIPTION
   Remote Control allows you to control sessions on your local device from
-  claude.ai/code (https://claude.ai/code). Run this command in the
-  directory you want to work in, then connect from the Claude app or web.
+  adicode.ai/code (https://claude.ai/code). Run this command in the
+  directory you want to work in, then connect from the Adicode app or web.
 ${serverDescription}
 NOTES
-  - You must be logged in with a Claude account that has a subscription
-  - Run \`claude\` first in the directory to accept the workspace trust dialog
+  - You must be logged in with a Adicode account that has a subscription
+  - Run \`adicode\` first in the directory to accept the workspace trust dialog
 ${serverNote}`
   // biome-ignore lint/suspicious/noConsole: intentional help output
   console.log(help)
@@ -2082,11 +2082,11 @@ export async function bridgeMain(args: string[]): Promise<void> {
   setCwdState(dir)
 
   // The bridge bypasses main.tsx (which renders the interactive TrustDialog via showSetupScreens),
-  // so we must verify trust was previously established by a normal `claude` session.
+  // so we must verify trust was previously established by a normal `adicode` session.
   if (!checkHasTrustDialogAccepted()) {
     // biome-ignore lint/suspicious/noConsole:: intentional console output
     console.error(
-      `Error: Workspace not trusted. Please run \`claude\` in ${dir} first to review and accept the workspace trust dialog.`,
+      `Error: Workspace not trusted. Please run \`adicode\` in ${dir} first to review and accept the workspace trust dialog.`,
     )
     // eslint-disable-next-line custom-rules/no-process-exit
     process.exit(1)
@@ -2122,7 +2122,7 @@ export async function bridgeMain(args: string[]): Promise<void> {
     })
     // biome-ignore lint/suspicious/noConsole:: intentional console output
     console.log(
-      '\nRemote Control lets you access this CLI session from the web (claude.ai/code)\nor the Claude app, so you can pick up where you left off on any device.\n\nYou can disconnect remote access anytime by running /remote-control again.\n',
+      '\nRemote Control lets you access this CLI session from the web (adicode.ai/code)\nor the Adicode app, so you can pick up where you left off on any device.\n\nYou can disconnect remote access anytime by running /remote-control again.\n',
     )
     const answer = await new Promise<string>(resolve => {
       rl.question('Enable Remote Control? (y/n) ', resolve)
@@ -2144,9 +2144,9 @@ export async function bridgeMain(args: string[]): Promise<void> {
   // worktree siblings if that misses — the REPL bridge writes to
   // getOriginalCwd() which EnterWorktreeTool/activeWorktreeSession can
   // point at a worktree while the user's shell is at the repo root.
-  // KAIROS-gated at parseArgs — continueSession is always false in external
+  // ADICODE-gated at parseArgs — continueSession is always false in external
   // builds, so this block tree-shakes.
-  if (feature('KAIROS') && continueSession) {
+  if (feature('ADICODE') && continueSession) {
     const { readBridgePointerAcrossWorktrees } = await import(
       './bridgePointer.js'
     )
@@ -2154,7 +2154,7 @@ export async function bridgeMain(args: string[]): Promise<void> {
     if (!found) {
       // biome-ignore lint/suspicious/noConsole: intentional error output
       console.error(
-        `Error: No recent session found in this directory or its worktrees. Run \`claude remote-control\` to start a new one.`,
+        `Error: No recent session found in this directory or its worktrees. Run \`adicode remote-control\` to start a new one.`,
       )
       // eslint-disable-next-line custom-rules/no-process-exit
       process.exit(1)
@@ -2175,7 +2175,7 @@ export async function bridgeMain(args: string[]): Promise<void> {
   }
 
   // In production, baseUrl is the Anthropic API (from OAuth config).
-  // CLAUDE_BRIDGE_BASE_URL overrides this for ant local dev only.
+  // ADICODE_BRIDGE_BASE_URL overrides this for ant local dev only.
   const baseUrl = getBridgeBaseUrl()
 
   // For non-localhost targets, require HTTPS to protect credentials.
@@ -2195,12 +2195,12 @@ export async function bridgeMain(args: string[]): Promise<void> {
   // Session ingress URL for WebSocket connections. In production this is the
   // same as baseUrl (Envoy routes /v1/session_ingress/* to session-ingress).
   // Locally, session-ingress runs on a different port (9413) than the
-  // contain-provide-api (8211), so CLAUDE_BRIDGE_SESSION_INGRESS_URL must be
-  // set explicitly. Ant-only, matching CLAUDE_BRIDGE_BASE_URL.
+  // contain-provide-api (8211), so ADICODE_BRIDGE_SESSION_INGRESS_URL must be
+  // set explicitly. Ant-only, matching ADICODE_BRIDGE_BASE_URL.
   const sessionIngressUrl =
     process.env.USER_TYPE === 'ant' &&
-    process.env.CLAUDE_BRIDGE_SESSION_INGRESS_URL
-      ? process.env.CLAUDE_BRIDGE_SESSION_INGRESS_URL
+    process.env.ADICODE_BRIDGE_SESSION_INGRESS_URL
+      ? process.env.ADICODE_BRIDGE_SESSION_INGRESS_URL
       : baseUrl
 
   const { getBranch, getRemoteUrl, findGitRoot } = await import(
@@ -2252,7 +2252,7 @@ export async function bridgeMain(args: string[]): Promise<void> {
     })
     // biome-ignore lint/suspicious/noConsole: intentional dialog output
     console.log(
-      `\nClaude Remote Control is launching in spawn mode which lets you create new sessions in this project from AI CLI on Web or your Mobile app. Learn more here: https://code.claude.com/docs/en/remote-control\n\n` +
+      `\nAdicode Remote Control is launching in spawn mode which lets you create new sessions in this project from AI CLI on Web or your Mobile app. Learn more here: https://code.claude.com/docs/en/remote-control\n\n` +
         `Spawn mode for this project:\n` +
         `  [1] same-dir \u2014 sessions share the current directory (default)\n` +
         `  [2] worktree \u2014 each session gets an isolated git worktree\n\n` +
@@ -2346,7 +2346,7 @@ export async function bridgeMain(args: string[]): Promise<void> {
   const api = createBridgeApiClient({
     baseUrl,
     getAccessToken: getBridgeAccessToken,
-    runnerVersion: MACRO.VERSION,
+    runnerVersion: ADICODE.VERSION,
     onDebug: logForDebugging,
     onAuth401: handleOAuth401Error,
     getTrustedDeviceToken,
@@ -2356,11 +2356,11 @@ export async function bridgeMain(args: string[]): Promise<void> {
   // environment_id and reuse that for registration (idempotent on the
   // backend). Left undefined otherwise — the backend rejects
   // client-generated UUIDs and will allocate a fresh environment.
-  // feature('KAIROS') gate: --session-id is ant-only; parseArgs already
+  // feature('ADICODE') gate: --session-id is ant-only; parseArgs already
   // rejects the flag when the gate is off, so resumeSessionId is always
   // undefined here in external builds — this guard is for tree-shaking.
   let reuseEnvironmentId: string | undefined
-  if (feature('KAIROS') && resumeSessionId) {
+  if (feature('ADICODE') && resumeSessionId) {
     try {
       validateBridgeId(resumeSessionId, 'sessionId')
     } catch {
@@ -2392,7 +2392,7 @@ export async function bridgeMain(args: string[]): Promise<void> {
       }
       // biome-ignore lint/suspicious/noConsole: intentional error output
       console.error(
-        `Error: Session ${resumeSessionId} not found. It may have been archived or expired, or your login may have lapsed (run \`claude /login\`).`,
+        `Error: Session ${resumeSessionId} not found. It may have been archived or expired, or your login may have lapsed (run \`adicode /login\`).`,
       )
       // eslint-disable-next-line custom-rules/no-process-exit
       process.exit(1)
@@ -2425,7 +2425,7 @@ export async function bridgeMain(args: string[]): Promise<void> {
     verbose,
     sandbox,
     bridgeId,
-    workerType: 'claude_code',
+    workerType: 'adicode',
     environmentId: randomUUID(),
     reuseEnvironmentId,
     apiBaseUrl: baseUrl,
@@ -2470,7 +2470,7 @@ export async function bridgeMain(args: string[]): Promise<void> {
   // Used below to skip fresh session creation and seed initialSessionId.
   // Cleared on env mismatch so we gracefully fall back to a new session.
   let effectiveResumeSessionId: string | undefined
-  if (feature('KAIROS') && resumeSessionId) {
+  if (feature('ADICODE') && resumeSessionId) {
     if (reuseEnvironmentId && environmentId !== reuseEnvironmentId) {
       // Backend returned a different environment_id — the original env
       // expired or was reaped. Reconnect won't work against the new env
@@ -2668,10 +2668,10 @@ export async function bridgeMain(args: string[]): Promise<void> {
   // is undefined, so we fall through to fresh session creation (honoring the
   // "Creating a fresh session instead" warning printed above).
   let initialSessionId: string | null =
-    feature('KAIROS') && effectiveResumeSessionId
+    feature('ADICODE') && effectiveResumeSessionId
       ? effectiveResumeSessionId
       : null
-  if (preCreateSession && !(feature('KAIROS') && effectiveResumeSessionId)) {
+  if (preCreateSession && !(feature('ADICODE') && effectiveResumeSessionId)) {
     const { createBridgeSession } = await import('./createSession.js')
     try {
       initialSessionId = await createBridgeSession({
@@ -2830,7 +2830,7 @@ export async function runBridgeHeadless(
 
   if (!checkHasTrustDialogAccepted()) {
     throw new BridgeHeadlessPermanentError(
-      `Workspace not trusted: ${dir}. Run \`claude\` in that directory first to accept the trust dialog.`,
+      `Workspace not trusted: ${dir}. Run \`adicode\` in that directory first to accept the trust dialog.`,
     )
   }
 
@@ -2852,8 +2852,8 @@ export async function runBridgeHeadless(
   }
   const sessionIngressUrl =
     process.env.USER_TYPE === 'ant' &&
-    process.env.CLAUDE_BRIDGE_SESSION_INGRESS_URL
-      ? process.env.CLAUDE_BRIDGE_SESSION_INGRESS_URL
+    process.env.ADICODE_BRIDGE_SESSION_INGRESS_URL
+      ? process.env.ADICODE_BRIDGE_SESSION_INGRESS_URL
       : baseUrl
 
   const { getBranch, getRemoteUrl, findGitRoot } = await import(
@@ -2886,7 +2886,7 @@ export async function runBridgeHeadless(
     verbose: false,
     sandbox: opts.sandbox,
     bridgeId,
-    workerType: 'claude_code',
+    workerType: 'adicode',
     environmentId: randomUUID(),
     apiBaseUrl: baseUrl,
     sessionIngressUrl,
@@ -2896,7 +2896,7 @@ export async function runBridgeHeadless(
   const api = createBridgeApiClient({
     baseUrl,
     getAccessToken: opts.getAccessToken,
-    runnerVersion: MACRO.VERSION,
+    runnerVersion: ADICODE.VERSION,
     onDebug: log,
     onAuth401: opts.onAuth401,
     getTrustedDeviceToken,

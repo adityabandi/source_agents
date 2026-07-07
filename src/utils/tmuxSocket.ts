@@ -9,17 +9,17 @@
  * user's current session if they started the assistant from within tmux.
  *
  * HOW IT WORKS:
- * 1. The assistant creates its own tmux socket: `claude-<PID>` (e.g., `claude-12345`)
+ * 1. The assistant creates its own tmux socket: `adicode-<PID>` (e.g., `adicode-12345`)
  * 2. ALL Tmux tool commands use this socket via the `-L` flag
  * 3. ALL Bash tool commands inherit TMUX env var pointing to this socket
- *    (set in Shell.ts via getClaudeTmuxEnv())
+ *    (set in Shell.ts via getAdicodeTmuxEnv())
  *
  * This means ANY tmux command run through the assistant - whether via the Tmux tool
  * directly or via Bash - will operate on the assistant's isolated socket, NOT the
  * user's tmux session.
  *
  * IMPORTANT: The user's original TMUX env var is NOT used. After socket
- * initialization, getClaudeTmuxEnv() returns a value that overrides the
+ * initialization, getAdicodeTmuxEnv() returns a value that overrides the
  * user's TMUX in all child processes spawned by Shell.ts.
  */
 
@@ -33,7 +33,7 @@ import { getPlatform } from './platform.js'
 
 // Constants for tmux socket management
 const TMUX_COMMAND = 'tmux'
-const CLAUDE_SOCKET_PREFIX = 'claude'
+const ADICODE_SOCKET_PREFIX = 'adicode'
 
 /**
  * Executes a tmux command, routing through WSL on Windows.
@@ -86,11 +86,11 @@ let tmuxToolUsed = false
 
 /**
  * Gets the socket name for the assistant's isolated tmux session.
- * Format: claude-<PID>
+ * Format: adicode-<PID>
  */
-export function getClaudeSocketName(): string {
+export function getAdicodeSocketName(): string {
   if (!socketName) {
-    socketName = `${CLAUDE_SOCKET_PREFIX}-${process.pid}`
+    socketName = `${ADICODE_SOCKET_PREFIX}-${process.pid}`
   }
   return socketName
 }
@@ -99,7 +99,7 @@ export function getClaudeSocketName(): string {
  * Gets the socket path if the socket has been initialized.
  * Returns null if not yet initialized.
  */
-export function getClaudeSocketPath(): string | null {
+export function getAdicodeSocketPath(): string | null {
   return socketPath
 }
 
@@ -107,7 +107,7 @@ export function getClaudeSocketPath(): string | null {
  * Sets socket info after initialization.
  * Called after the tmux session is created.
  */
-export function setClaudeSocketInfo(path: string, pid: number): void {
+export function setAdicodeSocketInfo(path: string, pid: number): void {
   socketPath = path
   serverPid = pid
 }
@@ -127,12 +127,12 @@ export function isSocketInitialized(): boolean {
  * the Bash tool will operate on the assistant's socket, NOT the user's session.
  *
  * Format: "socket_path,server_pid,pane_index" (matches tmux's TMUX env var)
- * Example: "/tmp/tmux-501/claude-12345,54321,0"
+ * Example: "/tmp/tmux-501/adicode-12345,54321,0"
  *
  * Returns null if socket is not yet initialized.
  * When null, Shell.ts does not override TMUX, preserving user's environment.
  */
-export function getClaudeTmuxEnv(): string | null {
+export function getAdicodeTmuxEnv(): string | null {
   if (!socketPath || serverPid === null) {
     return null
   }
@@ -202,7 +202,7 @@ export function hasTmuxToolBeenUsed(): boolean {
  * Safe to call multiple times; will only initialize once.
  *
  * If tmux is not installed, this function returns gracefully without
- * initializing the socket. getClaudeTmuxEnv() will return null, and
+ * initializing the socket. getAdicodeTmuxEnv() will return null, and
  * Bash commands will run without tmux isolation.
  */
 export async function ensureSocketInitialized(): Promise<void> {
@@ -250,7 +250,7 @@ export async function ensureSocketInitialized(): Promise<void> {
  * Called during graceful shutdown to clean up resources.
  */
 async function killTmuxServer(): Promise<void> {
-  const socket = getClaudeSocketName()
+  const socket = getAdicodeSocketName()
   logForDebugging(`[Socket] Killing tmux server for socket: ${socket}`)
 
   const result = await execTmux(['-L', socket, 'kill-server'])
@@ -266,10 +266,10 @@ async function killTmuxServer(): Promise<void> {
 }
 
 async function doInitialize(): Promise<void> {
-  const socket = getClaudeSocketName()
+  const socket = getAdicodeSocketName()
 
   // Create a new session with our custom socket
-  // Pass CLAUDE_CODE_SKIP_PROMPT_HISTORY via -e so it's set in the initial shell environment
+  // Pass ADICODE_SKIP_PROMPT_HISTORY via -e so it's set in the initial shell environment
   //
   // On Windows, the tmux server inherits WSL_INTEROP from the short-lived
   // wsl.exe that spawns it; once `new-session -d` detaches and wsl.exe exits,
@@ -287,7 +287,7 @@ async function doInitialize(): Promise<void> {
     '-s',
     'base',
     '-e',
-    'CLAUDE_CODE_SKIP_PROMPT_HISTORY=true',
+    'ADICODE_SKIP_PROMPT_HISTORY=true',
     ...(getPlatform() === 'windows'
       ? ['-e', 'WSL_INTEROP=/run/WSL/1_interop']
       : []),
@@ -313,7 +313,7 @@ async function doInitialize(): Promise<void> {
   // Register cleanup to kill the tmux server on exit
   registerCleanup(killTmuxServer)
 
-  // Set CLAUDE_CODE_SKIP_PROMPT_HISTORY in the tmux GLOBAL environment (-g).
+  // Set ADICODE_SKIP_PROMPT_HISTORY in the tmux GLOBAL environment (-g).
   // Without -g this would only apply to the 'base' session, and new sessions
   // created by TungstenTool (e.g. 'test', 'verify') would not inherit it.
   // Any AI CLI instance spawned on this socket will inherit this env var,
@@ -324,7 +324,7 @@ async function doInitialize(): Promise<void> {
     socket,
     'set-environment',
     '-g',
-    'CLAUDE_CODE_SKIP_PROMPT_HISTORY',
+    'ADICODE_SKIP_PROMPT_HISTORY',
     'true',
   ])
 
@@ -358,7 +358,7 @@ async function doInitialize(): Promise<void> {
     if (path && pidStr) {
       const pid = parseInt(pidStr, 10)
       if (!isNaN(pid)) {
-        setClaudeSocketInfo(path, pid)
+        setAdicodeSocketInfo(path, pid)
         return
       }
     }
@@ -396,7 +396,7 @@ async function doInitialize(): Promise<void> {
       logForDebugging(
         `[Socket] Using fallback socket path: ${fallbackPath} (server PID: ${pid})`,
       )
-      setClaudeSocketInfo(fallbackPath, pid)
+      setAdicodeSocketInfo(fallbackPath, pid)
       return
     }
     // PID parsing failed

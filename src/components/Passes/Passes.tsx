@@ -71,7 +71,7 @@ export function Passes({
         setReferrerReward(eligibilityData.referrer_reward);
 
         // Use the campaign returned from eligibility for redemptions
-        const campaign = eligibilityData.referral_code_details?.campaign ?? 'claude_code_guest_pass';
+        const campaign = eligibilityData.referral_code_details?.campaign ?? 'adicode_guest_pass';
 
         // Fetch redemptions data
         let redemptionsData: ReferralRedemptionsResponse;
@@ -146,7 +146,7 @@ export function Passes({
         <Text>{'┌──────────┐'}</Text>
         <Text>
           {' ) CC '}
-          <Text color="claude">{TEARDROP_ASTERISK}</Text>
+          <Text color="adicode">{TEARDROP_ASTERISK}</Text>
           {' ┊ ( '}
         </Text>
         <Text>{'└──────────┘'}</Text>

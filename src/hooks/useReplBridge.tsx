@@ -48,7 +48,7 @@ const MAX_CONSECUTIVE_INIT_FAILURES = 3;
  * Watches AppState.replBridgeEnabled — when toggled off (via /config or footer),
  * the bridge is torn down. When toggled back on, it re-initializes.
  *
- * Inbound messages from claude.ai are injected into the REPL via queuedCommands.
+ * Inbound messages from adicode.ai are injected into the REPL via queuedCommands.
  */
 export function useReplBridge(messages: Message[], setMessages: (action: React.SetStateAction<Message[]>) => void, abortControllerRef: React.RefObject<AbortController | null>, commands: readonly Command[], mainLoopModel: string): {
   sendBridgeResult: () => void;
@@ -152,7 +152,7 @@ export function useReplBridge(messages: Message[], setMessages: (action: React.S
             shouldShowAppUpgradeMessage
           } = await import('../bridge/envLessBridgeConfig.js');
 
-          // Assistant mode: perpetual bridge session — claude.ai shows one
+          // Assistant mode: perpetual bridge session — adicode.ai shows one
           // continuous conversation across CLI restarts instead of a new
           // session per invocation. initBridgeCore reads bridge-pointer.json
           // (the same crash-recovery file #20735 added) and reuses its
@@ -162,14 +162,14 @@ export function useReplBridge(messages: Message[], setMessages: (action: React.S
           // crashes. Non-assistant bridges clear the pointer on teardown
           // (crash-recovery only).
           let perpetual = false;
-          if (feature('KAIROS')) {
+          if (feature('ADICODE')) {
             const {
               isAssistantMode
             } = await import('../assistant/index.js');
             perpetual = isAssistantMode();
           }
 
-          // When a user message arrives from claude.ai, inject it into the REPL.
+          // When a user message arrives from adicode.ai, inject it into the REPL.
           // Preserves the original UUID so that when the message is forwarded
           // back to CCR, it matches the original — avoiding duplicate messages.
           //
@@ -190,7 +190,7 @@ export function useReplBridge(messages: Message[], setMessages: (action: React.S
                 resolveAndPrepend
               } = await import('../bridge/inboundAttachments.js');
               let sanitized = fields.content;
-              if (feature('KAIROS_GITHUB_WEBHOOKS')) {
+              if (feature('ADICODE_GITHUB_WEBHOOKS')) {
                 /* eslint-disable @typescript-eslint/no-require-imports */
                 const {
                   sanitizeInboundWebhookContent
@@ -419,7 +419,7 @@ export function useReplBridge(messages: Message[], setMessages: (action: React.S
               // setAutoModeActive(true) side-effect BEFORE the throw) rather
               // than a graceful reject. Letting that throw escape would:
               // (1) leave STATE.autoModeActive=true while the mode is
-              //     unchanged (3-way invariant violation per src/CLAUDE.md)
+              //     unchanged (3-way invariant violation per src/ADICODE.md)
               // (2) fail to send a control_response → server kills WS
               // These mirror print.ts handleSetPermissionMode; the bridge
               // can't import the checks directly (bootstrap-isolation), so
@@ -604,13 +604,13 @@ export function useReplBridge(messages: Message[], setMessages: (action: React.S
               };
             });
 
-            // Show bridge status with URL in the transcript. perpetual (KAIROS
+            // Show bridge status with URL in the transcript. perpetual (ADICODE
             // assistant mode) falls back to v1 at initReplBridge.ts — skip the
             // v2-only upgrade nudge for them. Own try/catch so a cosmetic
             // GrowthBook hiccup doesn't hit the outer init-failure handler.
             const upgradeNudge = !perpetual ? await shouldShowAppUpgradeMessage().catch(() => false) : false;
             if (cancelled) return;
-            setMessages(prev_18 => [...prev_18, createBridgeStatusMessage(url, upgradeNudge ? 'Please upgrade to the latest version of the Claude mobile app to see your Remote Control sessions.' : undefined)]);
+            setMessages(prev_18 => [...prev_18, createBridgeStatusMessage(url, upgradeNudge ? 'Please upgrade to the latest version of the Adicode mobile app to see your Remote Control sessions.' : undefined)]);
             logForDebugging(`[bridge:repl] Hook initialized, session=${handle_0.bridgeSessionId}`);
           }
         } catch (err) {

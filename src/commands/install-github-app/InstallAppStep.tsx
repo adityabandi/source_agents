@@ -26,14 +26,14 @@ export function InstallAppStep(t0) {
   useKeybinding("confirm:yes", onSubmit, t1);
   let t2;
   if ($[1] === Symbol.for("react.memo_cache_sentinel")) {
-    t2 = <Box flexDirection="column" marginBottom={1}><Text bold={true}>Install the Claude GitHub App</Text></Box>;
+    t2 = <Box flexDirection="column" marginBottom={1}><Text bold={true}>Install the Adicode GitHub App</Text></Box>;
     $[1] = t2;
   } else {
     t2 = $[1];
   }
   let t3;
   if ($[2] === Symbol.for("react.memo_cache_sentinel")) {
-    t3 = <Box marginBottom={1}><Text>Opening browser to install the Claude GitHub App…</Text></Box>;
+    t3 = <Box marginBottom={1}><Text>Opening browser to install the Adicode GitHub App…</Text></Box>;
     $[2] = t3;
   } else {
     t3 = $[2];
@@ -76,7 +76,7 @@ export function InstallAppStep(t0) {
   }
   let t9;
   if ($[9] === Symbol.for("react.memo_cache_sentinel")) {
-    t9 = <Box marginTop={1}><Text dimColor={true}>Having trouble? See manual setup instructions at:{" "}<Text color="claude">{GITHUB_ACTION_SETUP_DOCS_URL}</Text></Text></Box>;
+    t9 = <Box marginTop={1}><Text dimColor={true}>Having trouble? See manual setup instructions at:{" "}<Text color="adicode">{GITHUB_ACTION_SETUP_DOCS_URL}</Text></Text></Box>;
     $[9] = t9;
   } else {
     t9 = $[9];

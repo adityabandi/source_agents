@@ -161,7 +161,7 @@ async function executeForkedSkill(
       'fork' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
     invocation_trigger: (queryDepth > 0
       ? 'nested-skill'
-      : 'claude-proactive') as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+      : 'adicode-proactive') as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
     query_depth: queryDepth,
     ...(parentAgentId && {
       parent_agent_id:
@@ -684,7 +684,7 @@ export const SkillTool: Tool<InputSchema, Output, Progress> = buildTool({
         'inline' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
       invocation_trigger: (queryDepth > 0
         ? 'nested-skill'
-        : 'claude-proactive') as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+        : 'adicode-proactive') as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
       query_depth: queryDepth,
       ...(parentAgentId && {
         parent_agent_id:
@@ -1038,7 +1038,7 @@ async function executeRemoteSkill(
       'remote' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
     invocation_trigger: (queryDepth > 0
       ? 'nested-skill'
-      : 'claude-proactive') as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+      : 'adicode-proactive') as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
     query_depth: queryDepth,
     ...(parentAgentId && {
       parent_agent_id:
@@ -1067,23 +1067,23 @@ async function executeRemoteSkill(
   // content unchanged if no frontmatter is present.
   const { content: bodyContent } = parseFrontmatter(content, skillPath)
 
-  // Inject base directory header + ${CLAUDE_SKILL_DIR}/${CLAUDE_SESSION_ID}
+  // Inject base directory header + ${ADICODE_SKILL_DIR}/${ADICODE_SESSION_ID}
   // substitution (matches loadSkillsDir.ts) so the model can resolve relative
   // refs like ./schemas/foo.json against the cache dir.
   const skillDir = dirname(skillPath)
   const normalizedDir =
     process.platform === 'win32' ? skillDir.replace(/\\/g, '/') : skillDir
   let finalContent = `Base directory for this skill: ${normalizedDir}\n\n${bodyContent}`
-  finalContent = finalContent.replace(/\$\{CLAUDE_SKILL_DIR\}/g, normalizedDir)
+  finalContent = finalContent.replace(/\$\{ADICODE_SKILL_DIR\}/g, normalizedDir)
   finalContent = finalContent.replace(
-    /\$\{CLAUDE_SESSION_ID\}/g,
+    /\$\{ADICODE_SESSION_ID\}/g,
     getSessionId(),
   )
 
   // Register with compaction-preservation state. Use the cached file path so
   // post-compact restoration knows where the content came from. Must use
   // finalContent (not raw content) so the base directory header and
-  // ${CLAUDE_SKILL_DIR} substitutions survive compaction — matches how local
+  // ${ADICODE_SKILL_DIR} substitutions survive compaction — matches how local
   // skills store their already-transformed content via processSlashCommand.
   addInvokedSkill(
     commandName,

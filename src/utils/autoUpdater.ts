@@ -11,8 +11,8 @@ import {
 import { type ReleaseChannel, saveGlobalConfig } from './config.js'
 import { logForDebugging } from './debug.js'
 import { env } from './env.js'
-import { getClaudeConfigHomeDir } from './envUtils.js'
-import { ClaudeError, getErrnoCode, isENOENT } from './errors.js'
+import { getAdicodeConfigHomeDir } from './envUtils.js'
+import { AdicodeError, getErrnoCode, isENOENT } from './errors.js'
 import { execFileNoThrowWithCwd } from './execFileNoThrow.js'
 import { getFsImplementation } from './fsOperations.js'
 import { gracefulShutdownSync } from './gracefulShutdown.js'
@@ -20,7 +20,7 @@ import { logError } from './log.js'
 import { gte, lt } from './semver.js'
 import { getInitialSettings } from './settings/settings.js'
 import {
-  filterClaudeAliases,
+  filterAdicodeAliases,
   getShellConfigPaths,
   readFileLines,
   writeFileLines,
@@ -30,7 +30,7 @@ import { jsonParse } from './slowOperations.js'
 const GCS_BUCKET_URL =
   'https://storage.googleapis.com/claude-code-dist-86c565f3-f756-42ad-8dfa-d59b1c096819/claude-code-releases'
 
-class AutoUpdaterError extends ClaudeError {}
+class AutoUpdaterError extends AdicodeError {}
 
 export type InstallStatus =
   | 'success'
@@ -61,7 +61,7 @@ export type MaxVersionConfig = {
  *
  * Versioning approach:
  * 1. For version requirements/compatibility (assertMinVersion), we use semver comparison that ignores build metadata
- * 2. For updates ('claude update'), we use exact string comparison to detect any change, including SHA
+ * 2. For updates ('adicode update'), we use exact string comparison to detect any change, including SHA
  *    - This ensures users always get the latest build, even when only the SHA changes
  *    - The UI clearly shows both versions including build metadata
  *
@@ -79,15 +79,15 @@ export async function assertMinVersion(): Promise<void> {
 
     if (
       versionConfig.minVersion &&
-      lt(MACRO.VERSION, versionConfig.minVersion)
+      lt(ADICODE.VERSION, versionConfig.minVersion)
     ) {
       // biome-ignore lint/suspicious/noConsole:: intentional console output
       console.error(`
-It looks like your version of AI CLI (${MACRO.VERSION}) needs an update.
+It looks like your version of AI CLI (${ADICODE.VERSION}) needs an update.
 A newer version (${versionConfig.minVersion} or higher) is required to continue.
 
 To update, please run:
-    claude update
+    adicode update
 
 This will ensure you have access to the latest features and improvements.
 `)
@@ -166,7 +166,7 @@ const LOCK_TIMEOUT_MS = 5 * 60 * 1000 // 5 minute timeout for locks
  * This is a function to ensure it's evaluated at runtime after test setup
  */
 export function getLockFilePath(): string {
-  return join(getClaudeConfigHomeDir(), '.update.lock')
+  return join(getAdicodeConfigHomeDir(), '.update.lock')
 }
 
 /**
@@ -229,7 +229,7 @@ async function acquireLock(): Promise<boolean> {
         // fs.mkdir from getFsImplementation() is always recursive:true and
         // swallows EEXIST internally, so a dir-creation race cannot reach the
         // catch below — only writeFile's EEXIST (true lock contention) can.
-        await fs.mkdir(getClaudeConfigHomeDir())
+        await fs.mkdir(getAdicodeConfigHomeDir())
         await writeFile(lockPath, `${process.pid}`, {
           encoding: 'utf8',
           flag: 'wx',
@@ -325,7 +325,7 @@ export async function getLatestVersion(
   // which could be maliciously crafted to redirect to an attacker's registry
   const result = await execFileNoThrowWithCwd(
     'npm',
-    ['view', `${MACRO.PACKAGE_URL}@${npmTag}`, 'version', '--prefer-online'],
+    ['view', `${ADICODE.PACKAGE_URL}@${npmTag}`, 'version', '--prefer-online'],
     { abortSignal: AbortSignal.timeout(5000), cwd: homedir() },
   )
   if (result.code !== 0) {
@@ -356,7 +356,7 @@ export async function getNpmDistTags(): Promise<NpmDistTags> {
   // Run from home directory to avoid reading project-level .npmrc
   const result = await execFileNoThrowWithCwd(
     'npm',
-    ['view', MACRO.PACKAGE_URL, 'dist-tags', '--json', '--prefer-online'],
+    ['view', ADICODE.PACKAGE_URL, 'dist-tags', '--json', '--prefer-online'],
     { abortSignal: AbortSignal.timeout(5000), cwd: homedir() },
   )
 
@@ -425,7 +425,7 @@ export async function getVersionHistory(limit: number): Promise<string[]> {
 
   // Use native package URL when available to ensure we only show versions
   // that have native binaries (not all JS package versions have native builds)
-  const packageUrl = MACRO.NATIVE_PACKAGE_URL ?? MACRO.PACKAGE_URL
+  const packageUrl = ADICODE.NATIVE_PACKAGE_URL ?? ADICODE.PACKAGE_URL
 
   // Run from home directory to avoid reading project-level .npmrc
   const result = await execFileNoThrowWithCwd(
@@ -464,19 +464,19 @@ export async function installGlobalPackage(
     logEvent('tengu_auto_updater_lock_contention', {
       pid: process.pid,
       currentVersion:
-        MACRO.VERSION as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+        ADICODE.VERSION as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
     })
     return 'in_progress'
   }
 
   try {
-    await removeClaudeAliasesFromShellConfigs()
+    await removeAdicodeAliasesFromShellConfigs()
     // Check if we're using npm from Windows path in WSL
     if (!env.isRunningWithBun() && env.isNpmFromWindowsPath()) {
       logError(new Error('Windows NPM detected in WSL environment'))
       logEvent('tengu_auto_updater_windows_npm_in_wsl', {
         currentVersion:
-          MACRO.VERSION as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+          ADICODE.VERSION as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
       })
       // biome-ignore lint/suspicious/noConsole:: intentional console output
       console.error(`
@@ -488,7 +488,7 @@ This configuration is not supported for updates.
 To fix this issue:
   1. Install Node.js within your Linux distribution: e.g. sudo apt install nodejs npm
   2. Make sure Linux NPM is in your PATH before the Windows version
-  3. Try updating again with 'claude update'
+  3. Try updating again with 'adicode update'
 `)
       return 'install_failed'
     }
@@ -500,8 +500,8 @@ To fix this issue:
 
     // Use specific version if provided, otherwise use latest
     const packageSpec = specificVersion
-      ? `${MACRO.PACKAGE_URL}@${specificVersion}`
-      : MACRO.PACKAGE_URL
+      ? `${ADICODE.PACKAGE_URL}@${specificVersion}`
+      : ADICODE.PACKAGE_URL
 
     // Run from home directory to avoid reading project-level .npmrc/.bunfig.toml
     // which could be maliciously crafted to redirect to an attacker's registry
@@ -513,7 +513,7 @@ To fix this issue:
     )
     if (installResult.code !== 0) {
       const error = new AutoUpdaterError(
-        `Failed to install new version of claude: ${installResult.stdout} ${installResult.stderr}`,
+        `Failed to install new version of adicode: ${installResult.stdout} ${installResult.stderr}`,
       )
       logError(error)
       return 'install_failed'
@@ -533,10 +533,10 @@ To fix this issue:
 }
 
 /**
- * Remove claude aliases from shell configuration files
+ * Remove adicode aliases from shell configuration files
  * This helps clean up old installation methods when switching to native or npm global
  */
-async function removeClaudeAliasesFromShellConfigs(): Promise<void> {
+async function removeAdicodeAliasesFromShellConfigs(): Promise<void> {
   const configMap = getShellConfigPaths()
 
   // Process each shell config file
@@ -545,11 +545,11 @@ async function removeClaudeAliasesFromShellConfigs(): Promise<void> {
       const lines = await readFileLines(configFile)
       if (!lines) continue
 
-      const { filtered, hadAlias } = filterClaudeAliases(lines)
+      const { filtered, hadAlias } = filterAdicodeAliases(lines)
 
       if (hadAlias) {
         await writeFileLines(configFile, filtered)
-        logForDebugging(`Removed claude alias from ${configFile}`)
+        logForDebugging(`Removed adicode alias from ${configFile}`)
       }
     } catch (error) {
       // Don't fail the whole operation if one file can't be processed

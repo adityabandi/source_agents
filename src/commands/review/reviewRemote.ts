@@ -6,7 +6,7 @@
  *
  * TODO(#22051): pass useBundleMode once landed so local-only / uncommitted
  * repo state is captured. The GitHub-clone path (current) only works for
- * pushed branches on repos with the Claude GitHub app installed.
+ * pushed branches on repos with the Adicode GitHub app installed.
  */
 
 import type { ContentBlockParam } from '@anthropic-ai/sdk/resources/messages.js'

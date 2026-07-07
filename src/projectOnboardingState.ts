@@ -17,8 +17,8 @@ export type Step = {
 }
 
 export function getSteps(): Step[] {
-  const hasClaudeMd = getFsImplementation().existsSync(
-    join(getCwd(), 'CLAUDE.md'),
+  const hasAdicodeMd = getFsImplementation().existsSync(
+    join(getCwd(), 'ADICODE.md'),
   )
   const isWorkspaceDirEmpty = isDirEmpty(getCwd())
 
@@ -31,9 +31,9 @@ export function getSteps(): Step[] {
       isEnabled: isWorkspaceDirEmpty,
     },
     {
-      key: 'claudemd',
-      text: 'Run /init to create a CLAUDE.md file with instructions for the assistant',
-      isComplete: hasClaudeMd,
+      key: 'adicodemd',
+      text: 'Run /init to create a ADICODE.md file with instructions for the assistant',
+      isComplete: hasAdicodeMd,
       isCompletable: true,
       isEnabled: !isWorkspaceDirEmpty,
     },

@@ -9,7 +9,7 @@
  * To enable specific flags during dev, set the env var FEATURE_FLAGS as a
  * comma-separated list:
  *
- *   FEATURE_FLAGS=KAIROS,VOICE_MODE bun run src/main.tsx
+ *   FEATURE_FLAGS=ADICODE,VOICE_MODE bun run src/main.tsx
  */
 import { plugin } from 'bun'
 

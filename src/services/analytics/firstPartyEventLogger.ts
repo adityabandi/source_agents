@@ -186,7 +186,7 @@ async function logEventTo1PAsync(
     // Debug logging when debug mode is enabled
     if (process.env.USER_TYPE === 'ant') {
       logForDebugging(
-        `[ANT-ONLY] 1P event: ${eventName} ${jsonStringify(metadata, null, 0)}`,
+        `[ADICODE-ONLY] 1P event: ${eventName} ${jsonStringify(metadata, null, 0)}`,
       )
     }
 
@@ -287,7 +287,7 @@ export function logGrowthBookExperimentTo1P(
 
   if (process.env.USER_TYPE === 'ant') {
     logForDebugging(
-      `[ANT-ONLY] 1P GrowthBook experiment: ${data.experimentId} variation=${data.variationId}`,
+      `[ADICODE-ONLY] 1P GrowthBook experiment: ${data.experimentId} variation=${data.variationId}`,
     )
   }
 
@@ -341,8 +341,8 @@ export function initialize1PEventLogging(): void {
   // Build our own resource for 1P event logging with minimal attributes
   const platform = getPlatform()
   const attributes: Record<string, string> = {
-    [ATTR_SERVICE_NAME]: 'claude-code',
-    [ATTR_SERVICE_VERSION]: MACRO.VERSION,
+    [ATTR_SERVICE_NAME]: 'adicode',
+    [ATTR_SERVICE_VERSION]: ADICODE.VERSION,
   }
 
   // Add WSL-specific attributes if running on WSL
@@ -383,8 +383,8 @@ export function initialize1PEventLogging(): void {
   // because logs.getLogger() returns a logger from the global provider, which is
   // separate and used for customer telemetry.
   firstPartyEventLogger = firstPartyEventLoggerProvider.getLogger(
-    'com.anthropic.claude_code.events',
-    MACRO.VERSION,
+    'com.anthropic.adicode.events',
+    ADICODE.VERSION,
   )
 }
 

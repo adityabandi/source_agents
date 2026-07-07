@@ -1,7 +1,7 @@
 /**
  * Download functionality for native installer
  *
- * Handles downloading Claude binaries from various sources:
+ * Handles downloading Adicode binaries from various sources:
  * - Artifactory NPM packages
  * - GCS bucket
  */
@@ -35,7 +35,7 @@ export async function getLatestVersionFromArtifactory(
     'npm',
     [
       'view',
-      `${MACRO.NATIVE_PACKAGE_URL}@${tag}`,
+      `${ADICODE.NATIVE_PACKAGE_URL}@${tag}`,
       'version',
       '--prefer-online',
       '--registry',
@@ -65,7 +65,7 @@ export async function getLatestVersionFromArtifactory(
     source_npm: true,
   })
   logForDebugging(
-    `npm view ${MACRO.NATIVE_PACKAGE_URL}@${tag} version: ${stdout}`,
+    `npm view ${ADICODE.NATIVE_PACKAGE_URL}@${tag} version: ${stdout}`,
   )
   const latestVersion = stdout.trim()
   return latestVersion
@@ -159,7 +159,7 @@ export async function downloadVersionFromArtifactory(
 
   // Get the platform-specific package name
   const platform = getPlatform()
-  const platformPackageName = `${MACRO.NATIVE_PACKAGE_URL}-${platform}`
+  const platformPackageName = `${ADICODE.NATIVE_PACKAGE_URL}-${platform}`
 
   // Fetch integrity hash for the platform-specific package
   logForDebugging(
@@ -201,28 +201,28 @@ export async function downloadVersionFromArtifactory(
   await fs.mkdir(stagingPath)
 
   const packageJson = {
-    name: 'claude-native-installer',
+    name: 'adicode-native-installer',
     version: '0.0.1',
     dependencies: {
-      [MACRO.NATIVE_PACKAGE_URL!]: version,
+      [ADICODE.NATIVE_PACKAGE_URL!]: version,
     },
   }
 
   // Create package-lock.json with integrity verification for platform-specific package
   const packageLock = {
-    name: 'claude-native-installer',
+    name: 'adicode-native-installer',
     version: '0.0.1',
     lockfileVersion: 3,
     requires: true,
     packages: {
       '': {
-        name: 'claude-native-installer',
+        name: 'adicode-native-installer',
         version: '0.0.1',
         dependencies: {
-          [MACRO.NATIVE_PACKAGE_URL!]: version,
+          [ADICODE.NATIVE_PACKAGE_URL!]: version,
         },
       },
-      [`node_modules/${MACRO.NATIVE_PACKAGE_URL}`]: {
+      [`node_modules/${ADICODE.NATIVE_PACKAGE_URL}`]: {
         version: version,
         optionalDependencies: {
           [platformPackageName]: version,
@@ -264,7 +264,7 @@ export async function downloadVersionFromArtifactory(
   }
 
   logForDebugging(
-    `Successfully downloaded and verified ${MACRO.NATIVE_PACKAGE_URL}@${version}`,
+    `Successfully downloaded and verified ${ADICODE.NATIVE_PACKAGE_URL}@${version}`,
   )
 }
 
@@ -274,7 +274,7 @@ const MAX_DOWNLOAD_RETRIES = 3
 
 function getStallTimeoutMs(): number {
   return (
-    Number(process.env.CLAUDE_CODE_STALL_TIMEOUT_MS_FOR_TESTING) ||
+    Number(process.env.ADICODE_STALL_TIMEOUT_MS_FOR_TESTING) ||
     DEFAULT_STALL_TIMEOUT_MS
   )
 }
@@ -489,7 +489,7 @@ export async function downloadVersion(
   stagingPath: string,
 ): Promise<'npm' | 'binary'> {
   // Test-fixture versions route to the private sentinel bucket. DCE'd in all
-  // shipped builds — the string 'claude-code-ci-sentinel' and the gcloud call
+  // shipped builds — the string 'adicode-ci-sentinel' and the gcloud call
   // never exist in compiled binaries. Same gcloud-token pattern as
   // remoteSkillLoader.ts:175-195.
   if (feature('ALLOW_TEST_VERSIONS') && /^99\.99\./.test(version)) {

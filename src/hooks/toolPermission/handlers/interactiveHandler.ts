@@ -231,7 +231,7 @@ function handleInteractivePermission(
     },
   })
 
-  // Race 4: Bridge permission response from CCR (claude.ai)
+  // Race 4: Bridge permission response from CCR (adicode.ai)
   // When the bridge is connected, send the permission request to CCR and
   // subscribe for a response. Whichever side (CLI or CCR) responds first
   // wins via claim().
@@ -314,7 +314,7 @@ function handleInteractivePermission(
   // the subscription never fires and another racer wins. Graceful degradation
   // — the local dialog is always there as the floor.
   if (
-    (feature('KAIROS') || feature('KAIROS_CHANNELS')) &&
+    (feature('ADICODE') || feature('ADICODE_CHANNELS')) &&
     channelCallbacks &&
     !ctx.tool.requiresUserInteraction?.()
   ) {

@@ -30,7 +30,7 @@ type Props = {
  * useReplBridge in REPL.tsx to initialize the bridge connection.
  * The bridge registers an environment, creates a session with the current
  * conversation, polls for work, and connects an ingress WebSocket for
- * bidirectional messaging between the CLI and claude.ai.
+ * bidirectional messaging between the CLI and adicode.ai.
  *
  * Running /remote-control when already connected shows a dialog with the session
  * URL and options to disconnect or continue.
@@ -481,10 +481,10 @@ async function checkBridgePrerequisites(): Promise<string | null> {
 
   // Mirror the v1/v2 branching logic in initReplBridge: env-less (v2) is used
   // only when the flag is on AND the session is not perpetual.  In assistant
-  // mode (KAIROS) useReplBridge sets perpetual=true, which forces
+  // mode (ADICODE) useReplBridge sets perpetual=true, which forces
   // initReplBridge onto the v1 path — so the prerequisite check must match.
   let useV2 = isEnvLessBridgeEnabled();
-  if (feature('KAIROS') && useV2) {
+  if (feature('ADICODE') && useV2) {
     const {
       isAssistantMode
     } = await import('../../assistant/index.js');

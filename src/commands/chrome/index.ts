@@ -4,7 +4,7 @@ import type { Command } from '../../commands.js'
 const command: Command = {
   name: 'chrome',
   description: 'The assistant in Chrome (Beta) settings',
-  availability: ['claude-ai'],
+  availability: ['adicode-ai'],
   isEnabled: () => !getIsNonInteractiveSession(),
   type: 'local-jsx',
   load: () => import('./chrome.js'),

@@ -12,7 +12,7 @@ import {
 } from '../constants/system.js'
 import { logEvent } from '../services/analytics/index.js'
 import type { AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS } from '../services/analytics/metadata.js'
-import { getAPIMetadata } from '../services/api/claude.js'
+import { getAPIMetadata } from '../services/api/adicode.js'
 import { getAnthropicClient } from '../services/api/client.js'
 import { getModelBetas, modelSupportsStructuredOutputs } from './betas.js'
 import { computeFingerprint } from './fingerprint.js'
@@ -140,7 +140,7 @@ export async function sideQuery(opts: SideQueryOptions): Promise<BetaMessage> {
   const messageText = extractFirstUserMessageText(messages)
 
   // Compute fingerprint for OAuth attribution
-  const fingerprint = computeFingerprint(messageText, MACRO.VERSION)
+  const fingerprint = computeFingerprint(messageText, ADICODE.VERSION)
   const attributionHeader = getAttributionHeader(fingerprint)
 
   // Build system as array to keep attribution header in its own block

@@ -4,7 +4,7 @@ import { dirname, join } from 'path'
 import { coerce } from 'semver'
 import { getIsNonInteractiveSession } from '../bootstrap/state.js'
 import { getGlobalConfig, saveGlobalConfig } from './config.js'
-import { getClaudeConfigHomeDir } from './envUtils.js'
+import { getAdicodeConfigHomeDir } from './envUtils.js'
 import { toError } from './errors.js'
 import { logError } from './log.js'
 import { isEssentialTrafficOnly } from './privacyLevel.js'
@@ -32,10 +32,10 @@ const RAW_CHANGELOG_URL =
 
 /**
  * Get the path for the cached changelog file.
- * The changelog is stored at ~/.claude/cache/changelog.md
+ * The changelog is stored at ~/.adicode/cache/changelog.md
  */
 function getChangelogCachePath(): string {
-  return join(getClaudeConfigHomeDir(), 'cache', 'changelog.md')
+  return join(getAdicodeConfigHomeDir(), 'cache', 'changelog.md')
 }
 
 // In-memory cache populated by async reads. Sync callers (React render, sync
@@ -281,16 +281,16 @@ export function getAllReleaseNotes(
  * Also triggers a fetch of the latest changelog if the version has changed.
  *
  * @param lastSeenVersion The last version of release notes the user has seen
- * @param currentVersion The current application version, defaults to MACRO.VERSION
+ * @param currentVersion The current application version, defaults to ADICODE.VERSION
  * @returns An object with hasReleaseNotes and the releaseNotes content
  */
 export async function checkForReleaseNotes(
   lastSeenVersion: string | null | undefined,
-  currentVersion: string = MACRO.VERSION,
+  currentVersion: string = ADICODE.VERSION,
 ): Promise<{ hasReleaseNotes: boolean; releaseNotes: string[] }> {
   // For Ant builds, use VERSION_CHANGELOG bundled at build time
   if (process.env.USER_TYPE === 'ant') {
-    const changelog = MACRO.VERSION_CHANGELOG
+    const changelog = ADICODE.VERSION_CHANGELOG
     if (changelog) {
       const commits = changelog.trim().split('\n').filter(Boolean)
       return {
@@ -334,11 +334,11 @@ export async function checkForReleaseNotes(
  */
 export function checkForReleaseNotesSync(
   lastSeenVersion: string | null | undefined,
-  currentVersion: string = MACRO.VERSION,
+  currentVersion: string = ADICODE.VERSION,
 ): { hasReleaseNotes: boolean; releaseNotes: string[] } {
   // For Ant builds, use VERSION_CHANGELOG bundled at build time
   if (process.env.USER_TYPE === 'ant') {
-    const changelog = MACRO.VERSION_CHANGELOG
+    const changelog = ADICODE.VERSION_CHANGELOG
     if (changelog) {
       const commits = changelog.trim().split('\n').filter(Boolean)
       return {

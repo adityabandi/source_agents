@@ -38,7 +38,7 @@ export function UserToolSuccessMessage({
   // Hook stays inside feature() ternary so external builds don't pay a
   // per-scrollback-message store subscription — same pattern as
   // UserPromptMessage.tsx.
-  const isBriefOnly = feature('KAIROS') || feature('KAIROS_BRIEF') ?
+  const isBriefOnly = feature('ADICODE') || feature('ADICODE_BRIEF') ?
   // biome-ignore lint/correctness/useHookAtTopLevel: feature() is a compile-time constant
   useAppState(s => s.isBriefOnly) : false;
 
@@ -55,7 +55,7 @@ export function UserToolSuccessMessage({
 
   // Resumed transcripts deserialize toolUseResult via raw JSON.parse with no
   // validation (parseJSONL). A partial/corrupt/old-format result crashes
-  // renderToolResultMessage on first field access (anthropics/claude-code#39817).
+  // renderToolResultMessage on first field access (anthropics/adicode#39817).
   // Validate against outputSchema before rendering — mirrors CollapsedReadSearchContent.
   const parsedOutput = tool.outputSchema?.safeParse(message.toolUseResult);
   if (parsedOutput && !parsedOutput.success) {

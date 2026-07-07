@@ -21,7 +21,7 @@ type Props = {
   onDone(): void;
   startingMessage?: string;
   mode?: 'login' | 'setup-token';
-  forceLoginMethod?: 'claudeai' | 'console';
+  forceLoginMethod?: 'adicodeai' | 'console';
 };
 type OAuthStatus = {
   state: 'idle';
@@ -60,7 +60,7 @@ export function ConsoleOAuthFlow({
   const settings = getSettings_DEPRECATED() || {};
   const forceLoginMethod = forceLoginMethodProp ?? settings.forceLoginMethod;
   const orgUUID = settings.forceLoginOrgUUID;
-  const forcedMethodMessage = forceLoginMethod === 'claudeai' ? 'Login method pre-selected: Subscription Plan (Claude Pro/Max)' : forceLoginMethod === 'console' ? 'Login method pre-selected: API Usage Billing (Anthropic Console)' : null;
+  const forcedMethodMessage = forceLoginMethod === 'adicodeai' ? 'Login method pre-selected: Subscription Plan (Adicode Pro/Max)' : forceLoginMethod === 'console' ? 'Login method pre-selected: API Usage Billing (Anthropic Console)' : null;
   const terminal = useTerminalNotification();
   const [oauthStatus, setOAuthStatus] = useState<OAuthStatus>(() => {
     if (mode === 'setup-token') {
@@ -68,7 +68,7 @@ export function ConsoleOAuthFlow({
         state: 'ready_to_start'
       };
     }
-    if (forceLoginMethod === 'claudeai' || forceLoginMethod === 'console') {
+    if (forceLoginMethod === 'adicodeai' || forceLoginMethod === 'console') {
       return {
         state: 'ready_to_start'
       };
@@ -80,9 +80,9 @@ export function ConsoleOAuthFlow({
   const [pastedCode, setPastedCode] = useState('');
   const [cursorOffset, setCursorOffset] = useState(0);
   const [oauthService] = useState(() => new OAuthService());
-  const [loginWithClaudeAi, setLoginWithClaudeAi] = useState(() => {
-    // Use Claude AI auth for setup-token mode to support user:inference scope
-    return mode === 'setup-token' || forceLoginMethod === 'claudeai';
+  const [loginWithAdicodeAi, setLoginWithAdicodeAi] = useState(() => {
+    // Use Adicode AI auth for setup-token mode to support user:inference scope
+    return mode === 'setup-token' || forceLoginMethod === 'adicodeai';
   });
   // After a few seconds we suggest the user to copy/paste url if the
   // browser did not open automatically. In this flow we expect the user to
@@ -93,8 +93,8 @@ export function ConsoleOAuthFlow({
 
   // Log forced login method on mount
   useEffect(() => {
-    if (forceLoginMethod === 'claudeai') {
-      logEvent('tengu_oauth_claudeai_forced', {});
+    if (forceLoginMethod === 'adicodeai') {
+      logEvent('tengu_oauth_adicodeai_forced', {});
     } else if (forceLoginMethod === 'console') {
       logEvent('tengu_oauth_console_forced', {});
     }
@@ -111,7 +111,7 @@ export function ConsoleOAuthFlow({
   // Handle Enter to continue on success state
   useKeybinding('confirm:yes', () => {
     logEvent('tengu_oauth_success', {
-      loginWithClaudeAi
+      loginWithAdicodeAi
     });
     onDone();
   }, {
@@ -189,7 +189,7 @@ export function ConsoleOAuthFlow({
   const startOAuth = useCallback(async () => {
     try {
       logEvent('tengu_oauth_flow_start', {
-        loginWithClaudeAi
+        loginWithAdicodeAi
       });
       const result = await oauthService.startOAuthFlow(async url_0 => {
         setOAuthStatus({
@@ -198,7 +198,7 @@ export function ConsoleOAuthFlow({
         });
         setTimeout(setShowPastePrompt, 3000, true);
       }, {
-        loginWithClaudeAi,
+        loginWithAdicodeAi,
         inferenceOnly: mode === 'setup-token',
         expiresIn: mode === 'setup-token' ? 365 * 24 * 60 * 60 : undefined,
         // 1 year for setup-token
@@ -226,7 +226,7 @@ export function ConsoleOAuthFlow({
       });
       if (mode === 'setup-token') {
         // For setup-token mode, return the OAuth access token directly (it can be used as an API key)
-        // Don't save to keychain - the token is displayed for manual use with CLAUDE_CODE_OAUTH_TOKEN
+        // Don't save to keychain - the token is displayed for manual use with ADICODE_OAUTH_TOKEN
         setOAuthStatus({
           state: 'success',
           token: result.accessToken
@@ -260,7 +260,7 @@ export function ConsoleOAuthFlow({
         ssl_error: sslHint !== null
       });
     }
-  }, [oauthService, setShowPastePrompt, loginWithClaudeAi, mode, orgUUID]);
+  }, [oauthService, setShowPastePrompt, loginWithAdicodeAi, mode, orgUUID]);
   const pendingOAuthStartRef = useRef(false);
   useEffect(() => {
     if (oauthStatus.state === 'ready_to_start' && !pendingOAuthStartRef.current) {
@@ -276,16 +276,16 @@ export function ConsoleOAuthFlow({
   useEffect(() => {
     if (mode === 'setup-token' && oauthStatus.state === 'success') {
       // Delay to ensure static content is fully rendered before exiting
-      const timer_0 = setTimeout((loginWithClaudeAi_0, onDone_0) => {
+      const timer_0 = setTimeout((loginWithAdicodeAi_0, onDone_0) => {
         logEvent('tengu_oauth_success', {
-          loginWithClaudeAi: loginWithClaudeAi_0
+          loginWithAdicodeAi: loginWithAdicodeAi_0
         });
         // Don't clear terminal so the token remains visible
         onDone_0();
-      }, 500, loginWithClaudeAi, onDone);
+      }, 500, loginWithAdicodeAi, onDone);
       return () => clearTimeout(timer_0);
     }
-  }, [mode, oauthStatus, loginWithClaudeAi, onDone]);
+  }, [mode, oauthStatus, loginWithAdicodeAi, onDone]);
 
   // Cleanup OAuth service when component unmounts
   useEffect(() => {
@@ -320,12 +320,12 @@ export function ConsoleOAuthFlow({
               </Text>
               <Text dimColor>
                 Use this token by setting: export
-                CLAUDE_CODE_OAUTH_TOKEN=&lt;token&gt;
+                ADICODE_OAUTH_TOKEN=&lt;token&gt;
               </Text>
             </Box>
           </Box>}
       <Box paddingLeft={1} flexDirection="column" gap={1}>
-        <OAuthStatusMessage oauthStatus={oauthStatus} mode={mode} startingMessage={startingMessage} forcedMethodMessage={forcedMethodMessage} showPastePrompt={showPastePrompt} pastedCode={pastedCode} setPastedCode={setPastedCode} cursorOffset={cursorOffset} setCursorOffset={setCursorOffset} textInputColumns={textInputColumns} handleSubmitCode={handleSubmitCode} setOAuthStatus={setOAuthStatus} setLoginWithClaudeAi={setLoginWithClaudeAi} />
+        <OAuthStatusMessage oauthStatus={oauthStatus} mode={mode} startingMessage={startingMessage} forcedMethodMessage={forcedMethodMessage} showPastePrompt={showPastePrompt} pastedCode={pastedCode} setPastedCode={setPastedCode} cursorOffset={cursorOffset} setCursorOffset={setCursorOffset} textInputColumns={textInputColumns} handleSubmitCode={handleSubmitCode} setOAuthStatus={setOAuthStatus} setLoginWithAdicodeAi={setLoginWithAdicodeAi} />
       </Box>
     </Box>;
 }
@@ -342,7 +342,7 @@ type OAuthStatusMessageProps = {
   textInputColumns: number;
   handleSubmitCode: (value: string, url: string) => void;
   setOAuthStatus: (status: OAuthStatus) => void;
-  setLoginWithClaudeAi: (value: boolean) => void;
+  setLoginWithAdicodeAi: (value: boolean) => void;
 };
 function OAuthStatusMessage(t0) {
   const $ = _c(51);
@@ -359,12 +359,12 @@ function OAuthStatusMessage(t0) {
     textInputColumns,
     handleSubmitCode,
     setOAuthStatus,
-    setLoginWithClaudeAi
+    setLoginWithAdicodeAi
   } = t0;
   switch (oauthStatus.state) {
     case "idle":
       {
-        const t1 = startingMessage ? startingMessage : "AI CLI can be used with your Claude subscription or billed based on API usage through your Console account.";
+        const t1 = startingMessage ? startingMessage : "AI CLI can be used with your Adicode subscription or billed based on API usage through your Console account.";
         let t2;
         if ($[0] !== t1) {
           t2 = <Text bold={true}>{t1}</Text>;
@@ -383,8 +383,8 @@ function OAuthStatusMessage(t0) {
         let t4;
         if ($[3] === Symbol.for("react.memo_cache_sentinel")) {
           t4 = {
-            label: <Text>Claude account with subscription ·{" "}<Text dimColor={true}>Pro, Max, Team, or Enterprise</Text>{false && <Text>{"\n"}<Text color="warning">[ANT-ONLY]</Text>{" "}<Text dimColor={true}>Please use this option unless you need to login to a special org for accessing sensitive data (e.g. customer data, HIPI data) with the Console option</Text></Text>}{"\n"}</Text>,
-            value: "claudeai"
+            label: <Text>Adicode account with subscription ·{" "}<Text dimColor={true}>Pro, Max, Team, or Enterprise</Text>{false && <Text>{"\n"}<Text color="warning">[ADICODE-ONLY]</Text>{" "}<Text dimColor={true}>Please use this option unless you need to login to a special org for accessing sensitive data (e.g. customer data, HIPI data) with the Console option</Text></Text>}{"\n"}</Text>,
+            value: "adicodeai"
           };
           $[3] = t4;
         } else {
@@ -411,7 +411,7 @@ function OAuthStatusMessage(t0) {
           t6 = $[5];
         }
         let t7;
-        if ($[6] !== setLoginWithClaudeAi || $[7] !== setOAuthStatus) {
+        if ($[6] !== setLoginWithAdicodeAi || $[7] !== setOAuthStatus) {
           t7 = <Box><Select options={t6} onChange={value_0 => {
               if (value_0 === "platform") {
                 logEvent("tengu_oauth_platform_selected", {});
@@ -422,16 +422,16 @@ function OAuthStatusMessage(t0) {
                 setOAuthStatus({
                   state: "ready_to_start"
                 });
-                if (value_0 === "claudeai") {
-                  logEvent("tengu_oauth_claudeai_selected", {});
-                  setLoginWithClaudeAi(true);
+                if (value_0 === "adicodeai") {
+                  logEvent("tengu_oauth_adicodeai_selected", {});
+                  setLoginWithAdicodeAi(true);
                 } else {
                   logEvent("tengu_oauth_console_selected", {});
-                  setLoginWithClaudeAi(false);
+                  setLoginWithAdicodeAi(false);
                 }
               }
             }} /></Box>;
-          $[6] = setLoginWithClaudeAi;
+          $[6] = setLoginWithAdicodeAi;
           $[7] = setOAuthStatus;
           $[8] = t7;
         } else {

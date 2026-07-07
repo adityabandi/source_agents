@@ -11,15 +11,15 @@ import {
 import { clearPluginOutputStyleCache } from '../utils/plugins/loadPluginOutputStyles.js'
 
 /**
- * Loads markdown files from .claude/output-styles directories throughout the project
- * and from ~/.claude/output-styles directory and converts them to output styles.
+ * Loads markdown files from .adicode/output-styles directories throughout the project
+ * and from ~/.adicode/output-styles directory and converts them to output styles.
  *
  * Each filename becomes a style name, and the file content becomes the style prompt.
  * The frontmatter provides name and description.
  *
  * Structure:
- * - Project .claude/output-styles/*.md -> project styles
- * - User ~/.claude/output-styles/*.md -> user styles (overridden by project styles)
+ * - Project .adicode/output-styles/*.md -> project styles
+ * - User ~/.adicode/output-styles/*.md -> user styles (overridden by project styles)
  *
  * @param cwd Current working directory for project directory traversal
  */

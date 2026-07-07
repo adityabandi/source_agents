@@ -10,14 +10,14 @@ import {
 import axios from 'axios'
 import { checkMetricsEnabled } from 'src/services/api/metricsOptOut.js'
 import { getIsNonInteractiveSession } from '../../bootstrap/state.js'
-import { getSubscriptionType, isClaudeAISubscriber } from '../auth.js'
+import { getSubscriptionType, isAdicodeAISubscriber } from '../auth.js'
 import { checkHasTrustDialogAccepted } from '../config.js'
 import { logForDebugging } from '../debug.js'
 import { errorMessage, toError } from '../errors.js'
 import { getAuthHeaders } from '../http.js'
 import { logError } from '../log.js'
 import { jsonStringify } from '../slowOperations.js'
-import { getClaudeCodeUserAgent } from '../userAgent.js'
+import { getAdicodeUserAgent } from '../userAgent.js'
 
 type DataPoint = {
   attributes: Record<string, string>
@@ -48,11 +48,11 @@ export class BigQueryMetricsExporter implements PushMetricExporter {
 
     if (
       process.env.USER_TYPE === 'ant' &&
-      process.env.ANT_CLAUDE_CODE_METRICS_ENDPOINT
+      process.env.ANT_ADICODE_METRICS_ENDPOINT
     ) {
       this.endpoint =
-        process.env.ANT_CLAUDE_CODE_METRICS_ENDPOINT +
-        '/api/claude_code/metrics'
+        process.env.ANT_ADICODE_METRICS_ENDPOINT +
+        '/api/adicode/metrics'
     } else {
       this.endpoint = defaultEndpoint
     }
@@ -123,7 +123,7 @@ export class BigQueryMetricsExporter implements PushMetricExporter {
 
       const headers: Record<string, string> = {
         'Content-Type': 'application/json',
-        'User-Agent': getClaudeCodeUserAgent(),
+        'User-Agent': getAdicodeUserAgent(),
         ...authResult.headers,
       }
 
@@ -153,7 +153,7 @@ export class BigQueryMetricsExporter implements PushMetricExporter {
     const attrs = metrics.resource.attributes
 
     const resourceAttributes: Record<string, string> = {
-      'service.name': (attrs['service.name'] as string) || 'claude-code',
+      'service.name': (attrs['service.name'] as string) || 'adicode',
       'service.version': (attrs['service.version'] as string) || 'unknown',
       'os.type': (attrs['os.type'] as string) || 'unknown',
       'os.version': (attrs['os.version'] as string) || 'unknown',
@@ -170,8 +170,8 @@ export class BigQueryMetricsExporter implements PushMetricExporter {
     }
 
     // Add customer type and subscription type
-    if (isClaudeAISubscriber()) {
-      resourceAttributes['user.customer_type'] = 'claude_ai'
+    if (isAdicodeAISubscriber()) {
+      resourceAttributes['user.customer_type'] = 'adicode_ai'
       const subscriptionType = getSubscriptionType()
       if (subscriptionType) {
         resourceAttributes['user.subscription_type'] = subscriptionType

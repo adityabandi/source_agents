@@ -98,13 +98,13 @@ export function isProcessRunning(pid: number): boolean {
  * Validate that a running process is actually a AI CLI process
  * This helps mitigate PID reuse issues
  */
-function isClaudeProcess(pid: number, expectedExecPath: string): boolean {
+function isAdicodeProcess(pid: number, expectedExecPath: string): boolean {
   if (!isProcessRunning(pid)) {
     return false
   }
 
   // If the PID matches our current process, we know it's valid
-  // This handles test environments where the command might not contain 'claude'
+  // This handles test environments where the command might not contain 'adicode'
   if (pid === process.pid) {
     return true
   }
@@ -117,12 +117,12 @@ function isClaudeProcess(pid: number, expectedExecPath: string): boolean {
       return true
     }
 
-    // Check if the command contains 'claude' or the expected exec path
+    // Check if the command contains 'adicode' or the expected exec path
     const normalizedCommand = command.toLowerCase()
     const normalizedExecPath = expectedExecPath.toLowerCase()
 
     return (
-      normalizedCommand.includes('claude') ||
+      normalizedCommand.includes('adicode') ||
       normalizedCommand.includes(normalizedExecPath)
     )
   } catch {
@@ -177,7 +177,7 @@ export function isLockActive(lockFilePath: string): boolean {
 
   // Secondary validation: is it actually a AI CLI process?
   // This helps with PID reuse scenarios
-  if (!isClaudeProcess(pid, execPath)) {
+  if (!isAdicodeProcess(pid, execPath)) {
     logForDebugging(
       `Lock PID ${pid} is running but does not appear to be the assistant - treating as stale`,
     )
